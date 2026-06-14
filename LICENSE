@@ -1,0 +1,10 @@
+This project is licensed under the GNU General Public License v3.0 or later.
+
+SPDX-License-Identifier: GPL-3.0-or-later
+
+StreetComplete (the upstream data source) is licensed GPL-3.0. Reference photos
+carry their own licenses (CC-BY-SA / CC0 / Public Domain) and are tracked, with
+attribution, in packages/data/dist/attribution.json.
+
+TODO: replace this notice with the full GPL-3.0 license text before any public
+release. Canonical text: https://www.gnu.org/licenses/gpl-3.0.txt

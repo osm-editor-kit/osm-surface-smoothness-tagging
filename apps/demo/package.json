@@ -1,0 +1,16 @@
+{
+  "name": "@osm-surface-smoothness/demo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo 'TODO Phase 4: vite build' && exit 1",
+    "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "dev": "echo 'TODO Phase 4: vite dev' && exit 1",
+    "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
+    "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
+    "lint": "oxlint -c ../../oxlint.config.mjs .",
+    "test": "vitest run --passWithNoTests",
+    "type-check": "tsc --noEmit"
+  }
+}

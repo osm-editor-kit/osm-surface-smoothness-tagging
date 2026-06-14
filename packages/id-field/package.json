@@ -1,0 +1,34 @@
+{
+  "name": "@osm-surface-smoothness/id-field",
+  "version": "0.0.0",
+  "description": "D3-based iD inspector field for combined surface + smoothness tagging",
+  "license": "GPL-3.0-or-later",
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "sideEffects": [
+    "*.css"
+  ],
+  "main": "dist/surface-smoothness-field.esm.js",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/surface-smoothness-field.esm.js",
+      "default": "./dist/surface-smoothness-field.esm.js"
+    },
+    "./surface-smoothness-field.css": "./dist/surface-smoothness-field.css"
+  },
+  "scripts": {
+    "bleach": "rm -rf node_modules dist",
+    "build": "echo 'TODO Phase 4: build @osm-surface-smoothness/id-field' && exit 1",
+    "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "dev": "echo 'TODO Phase 4: vite watch + sync-to-id-worktree' && exit 1",
+    "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
+    "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
+    "lint": "oxlint -c ../../oxlint.config.mjs .",
+    "sync:id-worktree": "echo 'TODO Phase 4: sync dist to iD worktree' && exit 1",
+    "test": "vitest run --passWithNoTests",
+    "type-check": "tsc --noEmit"
+  }
+}
