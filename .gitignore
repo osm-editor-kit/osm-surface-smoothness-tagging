@@ -7,3 +7,6 @@ dist-ssr
 .env
 .cache
 coverage
+
+# Regenerable platform asset bundles (bun run build:mobile)
+mobile/
