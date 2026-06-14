@@ -33,5 +33,6 @@ export default defineConfig({
     '**/out/**',
     '**/build/**',
     '**/coverage/**',
+    '**/generated/**',
   ],
 })

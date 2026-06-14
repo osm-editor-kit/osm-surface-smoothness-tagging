@@ -1,0 +1,750 @@
+{
+  "version": "0.0.0",
+  "meta": {
+    "source": "StreetComplete",
+    "generatedBy": "scripts/extract-from-streetcomplete.ts",
+    "counts": {
+      "surfaces": 26,
+      "smoothnessLevels": 8,
+      "matrixSurfaces": 8,
+      "matrixCells": 43,
+      "images": 55,
+      "icons": 8
+    }
+  },
+  "smoothnessLevels": {
+    "excellent": {
+      "osmValue": "excellent",
+      "title": "Smooth and even",
+      "emoji": "🛹",
+      "vehicleIcon": "icons/skateboard.svg"
+    },
+    "good": {
+      "osmValue": "good",
+      "title": "Mostly even",
+      "emoji": "🛴",
+      "vehicleIcon": "icons/scooter.svg"
+    },
+    "intermediate": {
+      "osmValue": "intermediate",
+      "title": "A little bumpy",
+      "emoji": "🚲",
+      "vehicleIcon": "icons/city_bike.svg"
+    },
+    "bad": {
+      "osmValue": "bad",
+      "title": "Bumpy",
+      "emoji": "🚗",
+      "vehicleIcon": "icons/car.svg"
+    },
+    "very_bad": {
+      "osmValue": "very_bad",
+      "title": "Very bumpy",
+      "emoji": "🚙",
+      "vehicleIcon": "icons/suv.svg"
+    },
+    "horrible": {
+      "osmValue": "horrible",
+      "title": "Very bumpy and uneven",
+      "emoji": "🛻",
+      "vehicleIcon": "icons/pickup_truck.svg"
+    },
+    "very_horrible": {
+      "osmValue": "very_horrible",
+      "title": "Almost impassable",
+      "emoji": "🚜",
+      "vehicleIcon": "icons/tractor.svg"
+    },
+    "impassable": {
+      "osmValue": "impassable",
+      "title": "Impassable",
+      "emoji": "🚶",
+      "vehicleIcon": "icons/pedestrian.svg"
+    }
+  },
+  "surfaces": {
+    "asphalt": {
+      "osmValue": "asphalt",
+      "title": "Asphalt",
+      "icon": "images/surface_asphalt.jpg",
+      "smoothnessQuest": true
+    },
+    "concrete": {
+      "osmValue": "concrete",
+      "title": "Concrete",
+      "icon": "images/surface_concrete.jpg",
+      "smoothnessQuest": true
+    },
+    "concrete:lanes": {
+      "osmValue": "concrete:lanes",
+      "title": "Concrete lanes",
+      "icon": "images/surface_concrete_lanes.jpg",
+      "smoothnessQuest": false
+    },
+    "paving_stones": {
+      "osmValue": "paving_stones",
+      "title": "Paving stones",
+      "icon": "images/surface_paving_stones.jpg",
+      "smoothnessQuest": true
+    },
+    "sett": {
+      "osmValue": "sett",
+      "title": "Sett",
+      "icon": "images/surface_sett.jpg",
+      "smoothnessQuest": true
+    },
+    "unhewn_cobblestone": {
+      "osmValue": "unhewn_cobblestone",
+      "title": "Unhewn cobblestone",
+      "icon": "images/surface_cobblestone.jpg",
+      "smoothnessQuest": false
+    },
+    "grass_paver": {
+      "osmValue": "grass_paver",
+      "title": "Grass paver",
+      "icon": "images/surface_grass_paver.jpg",
+      "smoothnessQuest": false
+    },
+    "metal": {
+      "osmValue": "metal",
+      "title": "Metal",
+      "icon": "images/surface_metal.jpg",
+      "smoothnessQuest": false
+    },
+    "wood": {
+      "osmValue": "wood",
+      "title": "Wood",
+      "icon": "images/surface_wood.jpg",
+      "smoothnessQuest": false
+    },
+    "compacted": {
+      "osmValue": "compacted",
+      "title": "Compacted gravel",
+      "icon": "images/surface_compacted.jpg",
+      "smoothnessQuest": true
+    },
+    "woodchips": {
+      "osmValue": "woodchips",
+      "title": "Woodchips",
+      "icon": "images/surface_woodchips.jpg",
+      "smoothnessQuest": false
+    },
+    "fine_gravel": {
+      "osmValue": "fine_gravel",
+      "title": "Fine gravel",
+      "icon": "images/surface_fine_gravel.jpg",
+      "smoothnessQuest": true
+    },
+    "pebblestone": {
+      "osmValue": "pebblestone",
+      "title": "Pebbles",
+      "icon": "images/surface_pebblestone.jpg",
+      "smoothnessQuest": false
+    },
+    "gravel": {
+      "osmValue": "gravel",
+      "title": "Coarse gravel",
+      "icon": "images/surface_gravel.jpg",
+      "smoothnessQuest": true
+    },
+    "dirt": {
+      "osmValue": "dirt",
+      "title": "Dirt",
+      "icon": "images/surface_dirt.jpg",
+      "smoothnessQuest": false
+    },
+    "mud": {
+      "osmValue": "mud",
+      "title": "Persistent mud",
+      "icon": "images/surface_mud.jpg",
+      "smoothnessQuest": false
+    },
+    "grass": {
+      "osmValue": "grass",
+      "title": "Grass",
+      "icon": "images/surface_grass.jpg",
+      "smoothnessQuest": false
+    },
+    "sand": {
+      "osmValue": "sand",
+      "title": "Sand",
+      "icon": "images/surface_sand.jpg",
+      "smoothnessQuest": false
+    },
+    "rock": {
+      "osmValue": "rock",
+      "title": "Rock",
+      "icon": "images/surface_rock.jpg",
+      "smoothnessQuest": false
+    },
+    "clay": {
+      "osmValue": "clay",
+      "title": "Clay",
+      "icon": "images/surface_tennis_clay.jpg",
+      "smoothnessQuest": false
+    },
+    "artificial_turf": {
+      "osmValue": "artificial_turf",
+      "title": "Artificial turf",
+      "icon": "images/surface_artificial_turf.jpg",
+      "smoothnessQuest": false
+    },
+    "rubber": {
+      "osmValue": "rubber",
+      "title": "Rubber granules",
+      "icon": "images/surface_tartan.jpg",
+      "smoothnessQuest": false
+    },
+    "acrylic": {
+      "osmValue": "acrylic",
+      "title": "Synthetic resin",
+      "icon": "images/surface_acrylic.jpg",
+      "smoothnessQuest": false
+    },
+    "paved": {
+      "osmValue": "paved",
+      "title": "Paved (generic)",
+      "icon": "images/surface_paved_area.jpg",
+      "smoothnessQuest": false
+    },
+    "unpaved": {
+      "osmValue": "unpaved",
+      "title": "Unpaved (generic)",
+      "icon": "images/surface_unpaved_area.jpg",
+      "smoothnessQuest": false
+    },
+    "ground": {
+      "osmValue": "ground",
+      "title": "Ground (generic)",
+      "icon": "images/surface_ground_area.jpg",
+      "smoothnessQuest": false
+    }
+  },
+  "surfaceAliases": {
+    "concrete:plates": "concrete",
+    "earth": "dirt",
+    "soil": "dirt",
+    "tartan": "rubber",
+    "bricks": "paving_stones",
+    "brick": "paving_stones",
+    "chipseal": "asphalt",
+    "metal_grid": "metal"
+  },
+  "surfacesForSmoothnessQuest": [
+    "asphalt",
+    "concrete",
+    "concrete:plates",
+    "sett",
+    "paving_stones",
+    "compacted",
+    "gravel",
+    "fine_gravel"
+  ],
+  "smoothnessMatrix": {
+    "asphalt": {
+      "excellent": {
+        "photo": "images/surface_asphalt_excellent.jpg",
+        "description": "No bumps or cracks"
+      },
+      "good": {
+        "photo": "images/surface_asphalt_good.jpg",
+        "description": "Only small cracks, gaps, repairs or a little rough surface"
+      },
+      "intermediate": {
+        "photo": "images/surface_asphalt_intermediate.jpg",
+        "description": "Unusually rough surface, wider gaps, cracks, shallow ruts, potholes or other damage"
+      },
+      "bad": {
+        "photo": "images/surface_asphalt_bad.jpg",
+        "description": "Big gaps, potholes, ruts, crumbled paving or other damage"
+      },
+      "very_bad": {
+        "photo": "images/surface_asphalt_very_bad.jpg",
+        "description": "Deep potholes, ruts or other dangerous damage"
+      }
+    },
+    "concrete": {
+      "excellent": {
+        "photo": "images/surface_concrete_excellent.jpg",
+        "description": "No bumps or cracks"
+      },
+      "good": {
+        "photo": "images/surface_concrete_good.jpg",
+        "description": "Only small cracks, gaps, repairs or a little rough surface"
+      },
+      "intermediate": {
+        "photo": "images/surface_concrete_intermediate.jpg",
+        "description": "Unusually rough surface, wider gaps, cracks, shallow ruts, potholes or other damage"
+      },
+      "bad": {
+        "photo": "images/surface_concrete_bad.jpg",
+        "description": "Big gaps, potholes, ruts, crumbled paving or other damage"
+      },
+      "very_bad": {
+        "photo": "images/surface_concrete_very_bad.jpg",
+        "description": "Deep potholes, ruts or other dangerous damage"
+      }
+    },
+    "concrete:plates": {
+      "excellent": {
+        "photo": "images/surface_concrete_excellent.jpg",
+        "description": "No bumps or cracks"
+      },
+      "good": {
+        "photo": "images/surface_concrete_good.jpg",
+        "description": "Only small cracks, gaps, repairs or a little rough surface"
+      },
+      "intermediate": {
+        "photo": "images/surface_concrete_intermediate.jpg",
+        "description": "Unusually rough surface, wider gaps, cracks, shallow ruts, potholes or other damage"
+      },
+      "bad": {
+        "photo": "images/surface_concrete_bad.jpg",
+        "description": "Big gaps, potholes, ruts, crumbled paving or other damage"
+      },
+      "very_bad": {
+        "photo": "images/surface_concrete_very_bad.jpg",
+        "description": "Deep potholes, ruts or other dangerous damage"
+      }
+    },
+    "sett": {
+      "good": {
+        "photo": "images/surface_sett_good.jpg",
+        "description": "Unusually flat stones, regular pattern, very shallow or narrow gaps"
+      },
+      "intermediate": {
+        "photo": "images/surface_sett_intermediate.jpg",
+        "description": "Flat stones or with square edges, shallow or narrow gaps"
+      },
+      "bad": {
+        "photo": "images/surface_sett_bad.jpg",
+        "description": "Weathered stone or irregular shapes, big gaps or damage"
+      },
+      "very_bad": {
+        "photo": "images/surface_sett_very_bad.jpg",
+        "description": "Big gaps, displaced, missing or irregularly shaped stones or dangerous damage"
+      }
+    },
+    "paving_stones": {
+      "excellent": {
+        "photo": "images/surface_paving_stones_excellent.jpg",
+        "description": "Almost seamless"
+      },
+      "good": {
+        "photo": "images/surface_paving_stones_good.jpg",
+        "description": "Shallow or narrow gaps"
+      },
+      "intermediate": {
+        "photo": "images/surface_paving_stones_intermediate.jpg",
+        "description": "Wider gaps, possibly some displaced stones or other damage"
+      },
+      "bad": {
+        "photo": "images/surface_paving_stones_bad.jpg",
+        "description": "Displaced stones, big gaps or other damage"
+      },
+      "very_bad": {
+        "photo": "images/surface_paving_stones_very_bad.jpg",
+        "description": "Missing and broken stones, gaps or other dangerous damage"
+      }
+    },
+    "compacted": {
+      "good": {
+        "photo": "images/surface_compacted_good.jpg",
+        "description": "Hard-packed, very little loose gravel or sand"
+      },
+      "intermediate": {
+        "photo": "images/surface_compacted_intermediate.jpg",
+        "description": "Fine gravel, shallow bumps or potholes"
+      },
+      "bad": {
+        "photo": "images/surface_compacted_bad.jpg",
+        "description": "Some bigger gravel, bumps, ruts or potholes"
+      },
+      "very_bad": {
+        "photo": "images/surface_compacted_very_bad.jpg",
+        "description": "Some large stones, deep potholes, bumps, ruts, erosion or other hazardous damage"
+      },
+      "horrible": {
+        "photo": "images/surface_unpaved_horrible.jpg",
+        "description": "Properly usable only by off-road vehicles or on foot"
+      },
+      "very_horrible": {
+        "photo": "images/surface_unpaved_very_horrible.jpg",
+        "description": "Properly usable only by specialized off-road vehicles or on foot"
+      },
+      "impassable": {
+        "photo": "images/surface_unpaved_impassable.jpg",
+        "description": "Unfit for any vehicle, only passable on foot"
+      }
+    },
+    "gravel": {
+      "intermediate": {
+        "photo": "images/surface_gravel_intermediate.jpg",
+        "description": "Fine gravel, shallow bumps or potholes"
+      },
+      "bad": {
+        "photo": "images/surface_gravel_bad.jpg",
+        "description": "Some bigger gravel, bumps, ruts or potholes"
+      },
+      "very_bad": {
+        "photo": "images/surface_gravel_very_bad.jpg",
+        "description": "Some large stones, deep potholes, bumps, ruts, erosion or other hazardous damage"
+      },
+      "horrible": {
+        "photo": "images/surface_unpaved_horrible.jpg",
+        "description": "Properly usable only by off-road vehicles or on foot"
+      },
+      "very_horrible": {
+        "photo": "images/surface_unpaved_very_horrible.jpg",
+        "description": "Properly usable only by specialized off-road vehicles or on foot"
+      },
+      "impassable": {
+        "photo": "images/surface_unpaved_impassable.jpg",
+        "description": "Unfit for any vehicle, only passable on foot"
+      }
+    },
+    "fine_gravel": {
+      "intermediate": {
+        "photo": "images/surface_gravel_intermediate.jpg",
+        "description": "Fine gravel, shallow bumps or potholes"
+      },
+      "bad": {
+        "photo": "images/surface_gravel_bad.jpg",
+        "description": "Some bigger gravel, bumps, ruts or potholes"
+      },
+      "very_bad": {
+        "photo": "images/surface_gravel_very_bad.jpg",
+        "description": "Some large stones, deep potholes, bumps, ruts, erosion or other hazardous damage"
+      },
+      "horrible": {
+        "photo": "images/surface_unpaved_horrible.jpg",
+        "description": "Properly usable only by off-road vehicles or on foot"
+      },
+      "very_horrible": {
+        "photo": "images/surface_unpaved_very_horrible.jpg",
+        "description": "Properly usable only by specialized off-road vehicles or on foot"
+      },
+      "impassable": {
+        "photo": "images/surface_unpaved_impassable.jpg",
+        "description": "Unfit for any vehicle, only passable on foot"
+      }
+    }
+  },
+  "attribution": [
+    {
+      "file": "images/surface_acrylic.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Tennis_Court_Phoenix.jpg (NWSPhoenix)"
+    },
+    {
+      "file": "images/surface_artificial_turf.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Artificial_turf.jpg"
+    },
+    {
+      "file": "images/surface_asphalt.jpg",
+      "license": "Public Domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Ground_frost_damages.JPG (SeppVei)"
+    },
+    {
+      "file": "images/surface_asphalt_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Crumbling_asphalt_path.jpg (Andre Thum)"
+    },
+    {
+      "file": "images/surface_asphalt_excellent.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Mala_Hrastice_2020-06-16_Ulice_z_navsi_na_nadrazi_obr05.jpg (Miloš Hlávka)"
+    },
+    {
+      "file": "images/surface_asphalt_good.jpg",
+      "license": "Public Domain",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Small_road_with_a_few_repairs.jpg (helium314)"
+    },
+    {
+      "file": "images/surface_asphalt_intermediate.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Nids-de-poule_sur_une_route_communale.jpg (Mathis Brancquart)"
+    },
+    {
+      "file": "images/surface_asphalt_very_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Kamieniec_Szalejow_Gorny_road.jpg (Jojo)"
+    },
+    {
+      "file": "images/surface_cobblestone.jpg",
+      "license": "CC-BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bad_Radkersburg_Murgasse_IMG_0583.jpg (E.mil.mil)"
+    },
+    {
+      "file": "images/surface_compacted.jpg",
+      "license": "CC-BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Dirt_road_in_countryside.jpg (Ian Munroe)"
+    },
+    {
+      "file": "images/surface_compacted_bad.jpg",
+      "license": "Public Domain",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Rough_compacted_track.jpg (helium314)"
+    },
+    {
+      "file": "images/surface_compacted_good.jpg",
+      "license": "CC-BY-SA 2.0",
+      "source": "https://www.geograph.org.uk/photo/3670104 (Alan Hunt)"
+    },
+    {
+      "file": "images/surface_compacted_intermediate.jpg",
+      "license": "CC-BY-SA 2.0",
+      "source": "https://www.geograph.org.uk/photo/3670853 (Alan Hunt)"
+    },
+    {
+      "file": "images/surface_compacted_very_bad.jpg",
+      "license": "CC0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Smoothness_very_bad.jpg (rhhsm)"
+    },
+    {
+      "file": "images/surface_concrete.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2014-08-29_15_33_15_View_across_Stuyvesant_Avenue_in_Ewing,_New_Jersey,_with_concrete_pavement_likely_dating_to_the_1950s.JPG (Famartin)"
+    },
+    {
+      "file": "images/surface_concrete_bad.jpg",
+      "license": "CC-BY-SA 2.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Geograph-6398805-by-Trevor-Littlewood.jpg (Trevor Littlewood)"
+    },
+    {
+      "file": "images/surface_concrete_excellent.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Boat_ramp,_Flint_River_Park.JPG (Michael Rivera)"
+    },
+    {
+      "file": "images/surface_concrete_good.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:2014-08-29_15_31_39_View_southeast_along_Stuyvesant_Avenue_in_Ewing,_New_Jersey,_with_concrete_pavement_likely_dating_to_the_1950s.JPG (Famartin)"
+    },
+    {
+      "file": "images/surface_concrete_intermediate.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Concrete_plates_-_intermediate.jpg (Supaplex030)"
+    },
+    {
+      "file": "images/surface_concrete_lanes.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:%D0%91%D0%B5%D1%82%D0%BE%D0%BD%D0%BD%D0%B0_%D0%B2%D1%96%D0%B9%D1%81%D1%8C%D0%BA%D0%BE%D0%B2%D0%B0_%D0%B4%D0%BE%D1%80%D0%BE%D0%B3%D0%B0_%D0%BD%D0%B0_%D0%9F%D0%BE%D0%BB%D0%BE%D0%BD%D0%B8%D0%BD%D1%83_%D0%A0%D1%83%D0%BD%D1%83.jpg (Maximym44)"
+    },
+    {
+      "file": "images/surface_concrete_very_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Damaged_Irrigation_Canal.JPG (Narek75)"
+    },
+    {
+      "file": "images/surface_dirt.jpg",
+      "license": "CC-BY 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Dirt_road_towards_the_south_and_Ndara_Borehole_in_the_Tsavo_East_National_Park,_Kenya.jpg (CT Cooper)"
+    },
+    {
+      "file": "images/surface_fine_gravel.jpg",
+      "license": "CC0",
+      "source": "https://commons.wikimedia.org/wiki/File:Schottertextur_20160312_1.jpg (Sebastian Rittau)"
+    },
+    {
+      "file": "images/surface_grass.jpg",
+      "license": "CC-BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Footpath_through_the_long_grass_near_Southorpe_Bottom_(geograph_4621359).jpg (Richard Humphrey)"
+    },
+    {
+      "file": "images/surface_grass_paver.jpg",
+      "license": "Public Domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Rasenpflasterstein_1.jpg (Immanuel Giel)"
+    },
+    {
+      "file": "images/surface_gravel.jpg",
+      "license": "CC-BY 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Gravel_at_the_top_of_Vidova_gora,_island_of_Bra%C4%8D,_Croatia.jpg (Ante Perkovic)"
+    },
+    {
+      "file": "images/surface_gravel_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Gravel_-_bad.jpg (Supaplex030)"
+    },
+    {
+      "file": "images/surface_gravel_intermediate.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Compacted_-_intermediate.jpg (Supaplex030)"
+    },
+    {
+      "file": "images/surface_gravel_very_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Mountain_path_with_large_gravel.jpg (Andre Thum)"
+    },
+    {
+      "file": "images/surface_ground_area.jpg",
+      "license": "CC-BY 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Bend_It_Like_Beckham_(3734770583).jpg (Danumurthi Mahendra)"
+    },
+    {
+      "file": "images/surface_metal.jpg",
+      "license": "Public Domain",
+      "source": "https://commons.wikimedia.org/wiki/File:Metal_steel_surface.jpg (Titus Tscharntke)"
+    },
+    {
+      "file": "images/surface_mud.jpg",
+      "license": "CC-BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Dirt_road,_Ond%C5%99ejovsko_(4).jpg (Pavel Ševela [sevela.p])"
+    },
+    {
+      "file": "images/surface_paved_area.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2014-08-27_13_01_48_View_across_Parkway_Avenue_(Mercer_County_Route_634)_near_the_Delaware_and_Bound_Brook_Railroad_underpass,_with_concrete_pavement_likely_dating_to_the_1950s.JPG (Famartin)"
+    },
+    {
+      "file": "images/surface_paving_stones.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "Tobias Zwick with modifications by Mateusz Konieczny"
+    },
+    {
+      "file": "images/surface_paving_stones_bad.jpg",
+      "license": "CC0 1.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:20230418_142605c.jpg (Rhhsmits)"
+    },
+    {
+      "file": "images/surface_paving_stones_excellent.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Footway_with_very_smooth_paving.jpg (mcliquid)"
+    },
+    {
+      "file": "images/surface_paving_stones_good.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Paving_stones_-_good.jpg (Supaplex030)"
+    },
+    {
+      "file": "images/surface_paving_stones_intermediate.jpg",
+      "license": "Public Domain",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Damaged_and_loose_paving_stones.jpg (helium314)"
+    },
+    {
+      "file": "images/surface_paving_stones_very_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Broken_up_sidewalk_near_the_shore_of_the_St._Lawrence_River_near_Aultsville,_Ontario.jpg (Aultsville)"
+    },
+    {
+      "file": "images/surface_pebblestone.jpg",
+      "license": "CC-BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Boulders_and_shingle_on_Aber_Rhigian_Beach_-_geograph.org.uk_-_7859065.jpg (Jeff Buck)"
+    },
+    {
+      "file": "images/surface_rock.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Rock_Trail_Surface_at_Patapsco_Valley_State_Park.jpg"
+    },
+    {
+      "file": "images/surface_sand.jpg",
+      "license": "CC-BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:2013-08-21_12_04_26_View_south_towards_Barnegat_Lighthouse_along_the_sand_road_to_Barnegat_Inlet_in_Island_Beach_State_Park.jpg (Famartin )"
+    },
+    {
+      "file": "images/surface_sett.jpg",
+      "license": "CC-BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Brusteinshalden.JPG (Øyvind Holmstad )"
+    },
+    {
+      "file": "images/surface_sett_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Sett_-_bad.jpg (Supaplex030)"
+    },
+    {
+      "file": "images/surface_sett_good.jpg",
+      "license": "CC0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Sett_paving_with_flattened_stones_and_very_shallow_gaps.jpg (NicoHood)"
+    },
+    {
+      "file": "images/surface_sett_intermediate.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Sett_paving_with_mostly_square_but_rough_stones.jpg (Andre Thum)"
+    },
+    {
+      "file": "images/surface_sett_very_bad.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Sett-5-VeryBad-B.jpg (Szem)"
+    },
+    {
+      "file": "images/surface_tartan.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:4_%C3%97_100_metres_relay_start_line.jpg (Santeri Viinamäki)"
+    },
+    {
+      "file": "images/surface_tennis_clay.jpg",
+      "license": "CC-BY-SA 2.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Rafael_Nadal%2C_2011_Roland_Garros_(3).jpg (Yann Caradec)"
+    },
+    {
+      "file": "images/surface_unpaved_area.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Art_earthwork_landscape_sculpture_Woodland_Trust_Theydon_Bois_Essex_08.JPG (Acabashi)"
+    },
+    {
+      "file": "images/surface_unpaved_horrible.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Smoothness_horrible.jpg (rhhsm)"
+    },
+    {
+      "file": "images/surface_unpaved_impassable.jpg",
+      "license": "Public Domain",
+      "source": "https://drive.google.com/file/d/1yZXynVd07IWQPKpBbrlbABzfKHkG9X7R/view?usp=sharing (Tobias Zwick)"
+    },
+    {
+      "file": "images/surface_unpaved_very_horrible.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://wiki.openstreetmap.org/wiki/File:Very_horrible_ruts.jpg (Preslav)"
+    },
+    {
+      "file": "images/surface_wood.jpg",
+      "license": "CC-BY-SA 4.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Wooden_Bridge_In_Midst_of_Kaziranga_Wild_life_Sanctuary.jpg (Pavan Goswami)"
+    },
+    {
+      "file": "images/surface_woodchips.jpg",
+      "license": "CC-BY-SA 3.0",
+      "source": "https://commons.wikimedia.org/wiki/File:Woodchips_surface.jpg (10992-osm)"
+    },
+    {
+      "file": "icons/car.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/city_bike.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/pedestrian.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/pickup_truck.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/scooter.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/skateboard.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/suv.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    },
+    {
+      "file": "icons/tractor.svg",
+      "license": "GPL-3.0-or-later",
+      "source": "StreetComplete (res/graphics/smoothness)"
+    }
+  ]
+}

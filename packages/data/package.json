@@ -8,21 +8,29 @@
   ],
   "type": "module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
-    }
+    },
+    "./catalogue.json": "./dist/generated/catalogue.json",
+    "./images/*": "./dist/generated/images/*",
+    "./icons/*": "./dist/generated/icons/*"
   },
   "scripts": {
     "bleach": "rm -rf node_modules dist",
-    "build": "echo 'TODO Phase 2: build @osm-surface-smoothness/data' && exit 1",
+    "build": "bun run build:clean && bun run build:ts && bun run build:assets",
+    "build:assets": "bun run scripts/copy-assets.ts",
+    "build:clean": "rm -rf dist",
+    "build:ts": "tsc -p tsconfig.build.json",
     "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "extract": "bun run --cwd ../.. extract",
     "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
     "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
     "lint": "oxlint -c ../../oxlint.config.mjs .",
-    "test": "vitest run --passWithNoTests",
+    "test": "vitest run",
     "type-check": "tsc --noEmit"
   }
 }

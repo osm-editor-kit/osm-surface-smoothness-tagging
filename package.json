@@ -19,6 +19,7 @@
     "type-check": "bun run --filter '*' type-check"
   },
   "devDependencies": {
+    "@osm-surface-smoothness/data": "workspace:*",
     "@types/bun": "latest",
     "oxfmt": "0.50.0",
     "oxlint": "1.65.0",
