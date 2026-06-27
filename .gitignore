@@ -10,3 +10,6 @@ coverage
 
 # Regenerable platform asset bundles (bun run build:mobile)
 mobile/
+
+# Local editor/preview config (machine-specific paths)
+.claude/

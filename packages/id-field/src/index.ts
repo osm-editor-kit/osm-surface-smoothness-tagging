@@ -1,6 +1,4 @@
-// @osm-surface-smoothness/id-field
-//
-// Phase 4 will export createSurfaceSmoothnessField(field, context, adapters)
-// plus its types here, following the createTrafficSignField adapter pattern.
+// Type/declaration entry (dist/index.d.ts). Runtime consumers load the Vite bundle
+// (dist/surface-smoothness-field.esm.js); both re-export the same fieldEntry surface.
 
-export const FIELD_TYPE = 'surfaceSmoothness'
+export * from './fieldEntry.js'

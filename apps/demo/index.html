@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Surface / Smoothness field — demo</title>
+    <style>
+      body {
+        font-family: system-ui, sans-serif;
+        margin: 0;
+        background: #f0f2f4;
+        color: #222;
+      }
+      header {
+        padding: 16px 24px;
+        background: #fff;
+        border-bottom: 1px solid #ddd;
+      }
+      header h1 {
+        margin: 0;
+        font-size: 18px;
+      }
+      header p {
+        margin: 4px 0 0;
+        color: #666;
+        font-size: 13px;
+      }
+      .cols {
+        display: grid;
+        grid-template-columns: minmax(320px, 1fr) 280px;
+        gap: 24px;
+        padding: 24px;
+        align-items: start;
+      }
+      .panel {
+        background: #fff;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        padding: 16px;
+      }
+      .panel h2 {
+        margin: 0 0 10px;
+        font-size: 13px;
+        text-transform: uppercase;
+        color: #666;
+      }
+      #presets {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 14px;
+      }
+      #presets button {
+        padding: 4px 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background: #fafafa;
+        cursor: pointer;
+        font-size: 12px;
+      }
+      #presets button:hover {
+        border-color: #1e90ff;
+      }
+      pre#tags {
+        margin: 0;
+        padding: 12px;
+        background: #1e1e2e;
+        color: #cdd6f4;
+        border-radius: 6px;
+        font-size: 13px;
+        min-height: 60px;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Surface / Smoothness field</h1>
+      <p>Standalone demo of <code>@osm-surface-smoothness/id-field</code> with mock iD adapters.</p>
+    </header>
+    <div class="cols">
+      <section class="panel">
+        <div id="presets"></div>
+        <div id="field"></div>
+      </section>
+      <aside class="panel">
+        <h2>Resulting OSM tags</h2>
+        <pre id="tags">{}</pre>
+      </aside>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

@@ -1,0 +1,167 @@
+/* Surface/smoothness field. Uses iD theme variables with standalone fallbacks so
+   it renders both inside iD and in the demo app. */
+
+.surface-smoothness-field {
+  --ssf-border: var(--border-color, #ccd);
+  --ssf-bg: var(--bg-color, #fff);
+  --ssf-nested-bg: var(--nested-bg-color, #f6f6f6);
+  --ssf-text: var(--text-color, #333);
+  --ssf-muted: var(--muted-text-color, #767676);
+  --ssf-accent: var(--link-color, #1e90ff);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  color: var(--ssf-text);
+}
+
+.ssf-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ssf-label {
+  font-weight: bold;
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--ssf-muted);
+}
+
+/* ---- surface combobox ---- */
+
+.ssf-combo {
+  position: relative;
+}
+
+.ssf-surface-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 6px 8px;
+  border: 1px solid var(--ssf-border);
+  border-radius: 4px;
+  background: var(--ssf-bg);
+  color: inherit;
+  font-size: 13px;
+}
+
+.ssf-combo-list {
+  position: absolute;
+  z-index: 50;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  max-height: 220px;
+  overflow-y: auto;
+  list-style: none;
+  background: var(--ssf-bg);
+  border: 1px solid var(--ssf-border);
+  border-radius: 4px;
+  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+}
+
+.ssf-combo-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 8px;
+  cursor: pointer;
+}
+
+.ssf-combo-item:hover,
+.ssf-combo-item.selected {
+  background: var(--ssf-nested-bg);
+}
+
+.ssf-combo-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: cover;
+  border-radius: 3px;
+}
+
+.ssf-combo-title {
+  font-size: 13px;
+}
+
+.ssf-combo-code {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--ssf-muted);
+}
+
+/* ---- smoothness grid ---- */
+
+.ssf-hint {
+  font-size: 12px;
+  color: var(--ssf-muted);
+  padding: 6px 0;
+}
+
+.ssf-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 8px;
+}
+
+.ssf-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  text-align: left;
+  border: 1px solid var(--ssf-border);
+  border-radius: 6px;
+  background: var(--ssf-nested-bg);
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.ssf-card:hover {
+  border-color: var(--ssf-accent);
+}
+
+.ssf-card.selected {
+  border-color: var(--ssf-accent);
+  outline: 2px solid var(--ssf-accent);
+  outline-offset: -1px;
+}
+
+.ssf-card-photo {
+  width: 100%;
+  height: 84px;
+  object-fit: cover;
+  border-radius: 4px;
+  background: var(--ssf-border);
+}
+
+.ssf-card-head {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ssf-card-emoji {
+  font-size: 16px;
+}
+
+.ssf-card-title {
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.ssf-card-value {
+  font-family: monospace;
+  font-size: 11px;
+  color: var(--ssf-muted);
+}
+
+.ssf-card-desc {
+  font-size: 11px;
+  color: var(--ssf-muted);
+  line-height: 1.3;
+}

@@ -12,6 +12,8 @@ export default defineConfig({
   },
   rules: {
     'typescript/switch-exhaustiveness-check': 'error',
+    'eslint/no-underscore-dangle': 'off',
+    'import/no-unassigned-import': 'off',
   },
   overrides: [
     {

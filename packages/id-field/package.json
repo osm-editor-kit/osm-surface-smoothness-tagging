@@ -21,14 +21,28 @@
   },
   "scripts": {
     "bleach": "rm -rf node_modules dist",
-    "build": "echo 'TODO Phase 4: build @osm-surface-smoothness/id-field' && exit 1",
+    "build": "bun run build:js && bun run build:css && bun run build:types",
+    "build:css": "cp src/surface-smoothness-field.css dist/surface-smoothness-field.css",
+    "build:js": "vite build --config vite.esm.config.ts && vite build --config vite.iife.config.ts",
+    "build:types": "tsc -p tsconfig.build.json",
     "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
-    "dev": "echo 'TODO Phase 4: vite watch + sync-to-id-worktree' && exit 1",
+    "dev": "bun run scripts/dev.ts",
     "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
     "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
     "lint": "oxlint -c ../../oxlint.config.mjs .",
-    "sync:id-worktree": "echo 'TODO Phase 4: sync dist to iD worktree' && exit 1",
-    "test": "vitest run --passWithNoTests",
+    "sync:id-worktree": "bun run scripts/sync-to-id-worktree.ts",
+    "test": "vitest run",
     "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@osm-surface-smoothness/data": "workspace:*",
+    "d3-dispatch": "~3.0.1",
+    "d3-selection": "~3.0.0"
+  },
+  "devDependencies": {
+    "@types/d3-dispatch": "^3.0.7",
+    "@types/d3-selection": "^3.0.11",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.13"
   }
 }

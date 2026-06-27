@@ -4,13 +4,23 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "echo 'TODO Phase 4: vite build' && exit 1",
+    "build": "vite build",
     "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
-    "dev": "echo 'TODO Phase 4: vite dev' && exit 1",
+    "dev": "vite",
     "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
     "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
     "lint": "oxlint -c ../../oxlint.config.mjs .",
     "test": "vitest run --passWithNoTests",
     "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@osm-surface-smoothness/data": "workspace:*",
+    "@osm-surface-smoothness/id-field": "workspace:*",
+    "d3-selection": "~3.0.0"
+  },
+  "devDependencies": {
+    "@types/d3-selection": "^3.0.11",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.13"
   }
 }
