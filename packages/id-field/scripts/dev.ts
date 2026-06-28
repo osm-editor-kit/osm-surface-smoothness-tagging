@@ -5,6 +5,7 @@ import { join } from 'node:path'
 import { build } from 'vite'
 import esmConfig from '../vite.esm.config.ts'
 import iifeConfig from '../vite.iife.config.ts'
+import { syncToIdWorktree } from './sync-to-id-worktree.ts'
 
 const dist = join(import.meta.dirname, '../dist')
 await mkdir(dist, { recursive: true })
@@ -14,7 +15,8 @@ const postBuild = async () => {
     join(import.meta.dirname, '../src/surface-smoothness-field.css'),
     join(dist, 'surface-smoothness-field.css'),
   )
-  await import('./sync-to-id-worktree.ts')
+  // Call the function (not a cached import) so every rebuild actually re-syncs.
+  await syncToIdWorktree()
 }
 
 const syncPlugin = () => ({

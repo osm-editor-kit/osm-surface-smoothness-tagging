@@ -110,9 +110,14 @@ writeFileSync(
 )
 
 function imageset(file: string, srcDir: string, vector: boolean) {
+  const srcFile = join(srcDir, file)
+  if (!existsSync(srcFile)) {
+    skipped.push(`gomap/${file}`)
+    return
+  }
   const dir = join(xcassets, `${stem(file)}.imageset`)
   mkdirSync(dir, { recursive: true })
-  copyFileSync(join(srcDir, file), join(dir, file))
+  copyFileSync(srcFile, join(dir, file))
   const contents: Record<string, unknown> = {
     images: [{ filename: file, idiom: 'universal' }],
     info: { author: 'xcode', version: 1 },

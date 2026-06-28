@@ -182,7 +182,11 @@ for (const raw of authorsSrc.split('\n')) {
 function attributionFor(file: string): { license: string; source: string } | null {
   const exact = attrEntries.find((e) => !e.prefix && e.value === file)
   if (exact) return { license: exact.license, source: exact.source }
-  const pre = attrEntries.find((e) => e.prefix && file.startsWith(e.value))
+  // Several truncated prefixes can match one file; prefer the longest (most specific)
+  // so a short prefix never steals a more-specific entry's attribution.
+  const pre = attrEntries
+    .filter((e) => e.prefix && file.startsWith(e.value))
+    .sort((a, b) => b.value.length - a.value.length)[0]
   return pre ? { license: pre.license, source: pre.source } : null
 }
 

@@ -17,6 +17,11 @@ const assetByName = new Map<string, string>()
 for (const [path, url] of Object.entries({ ...imageMods, ...iconMods })) {
   assetByName.set(path.split('/').pop()!, url as string)
 }
+if (assetByName.size === 0) {
+  console.warn(
+    '[demo] No data assets found — build the data package first (root: `bun run build:packages`).',
+  )
+}
 const assetUrl = (path: string) => assetByName.get(path.split('/').pop()!) ?? path
 
 // Mock iD tag state.

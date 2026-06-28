@@ -113,7 +113,12 @@ export function createSurfaceSmoothnessField(
       .attr('class', 'ssf-combo-item')
       .on('mousedown', (event: Event, d) => {
         event.preventDefault() // keep input focus until selection is applied
-        chooseSurface((d as SurfaceItem).osmValue)
+        const picked = d as SurfaceItem
+        chooseSurface(picked.osmValue)
+        // The input keeps focus (preventDefault), so render()'s activeElement guard
+        // won't sync it — set the committed value explicitly so the box doesn't keep
+        // showing the user's typed prefix instead of the chosen surface.
+        _root.select('.ssf-surface-input').property('value', picked.osmValue)
         closeSurfaceList()
       })
     const merged = enter.merge(li as any)
@@ -177,9 +182,13 @@ export function createSurfaceSmoothnessField(
     hint.style('display', 'none')
     grid.style('display', 'grid')
 
+    // Key includes the surface: a card's photo is per (surface, smoothness), so a
+    // surface change re-creates the cards (fresh photos), while a smoothness toggle
+    // on the same surface reuses them and only flips `.selected` below — avoiding a
+    // full DOM rebuild + image refetch on every click.
     const cards = grid
       .selectAll('button.ssf-card')
-      .data(options, (d) => (d as SmoothnessOption).smoothness)
+      .data(options, (d) => `${surface}/${(d as SmoothnessOption).smoothness}`)
     cards.exit().remove()
     const enter = cards
       .enter()
@@ -187,14 +196,7 @@ export function createSurfaceSmoothnessField(
       .attr('type', 'button')
       .attr('class', 'ssf-card')
       .on('click', (_event: Event, d) => chooseSmoothness((d as SmoothnessOption).smoothness))
-    const merged = enter.merge(cards as any)
-    merged
-      .classed('selected', (d) => (d as SmoothnessOption).smoothness === smoothnessValue())
-      .attr('aria-pressed', (d) =>
-        (d as SmoothnessOption).smoothness === smoothnessValue() ? 'true' : 'false',
-      )
-    merged.html('')
-    merged.each(function (this: HTMLButtonElement, d) {
+    enter.each(function (this: HTMLButtonElement, d) {
       const o = d as SmoothnessOption
       const card = d3_select(this)
       card
@@ -217,6 +219,12 @@ export function createSurfaceSmoothnessField(
         card.append('div').attr('class', 'ssf-card-desc').text(o.cell.description)
       }
     })
+    enter
+      .merge(cards as any)
+      .classed('selected', (d) => (d as SmoothnessOption).smoothness === smoothnessValue())
+      .attr('aria-pressed', (d) =>
+        (d as SmoothnessOption).smoothness === smoothnessValue() ? 'true' : 'false',
+      )
   }
 
   // ---- instance (iD field interface) -------------------------------------
