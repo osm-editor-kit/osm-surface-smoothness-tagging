@@ -18,10 +18,12 @@ jobs:
       - name: Install
         run: bun install --frozen-lockfile
 
+      # Packages export from dist/; typecheck needs a prior build (same as local after build:packages).
+      - name: Build packages
+        run: bun run build:packages
+
       - name: Check
         run: bun run check
 
-      - name: Build packages + demo
-        run: |
-          bun run build:packages
-          bun run --cwd apps/demo build
+      - name: Build demo
+        run: bun run --cwd apps/demo build
