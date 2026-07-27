@@ -3,9 +3,6 @@
 D3-based [iD editor](https://github.com/openstreetmap/iD) inspector widget for
 combined `surface` + `smoothness` selection with reference photos.
 
-Part of [`osm-editor-kit`](https://github.com/osm-editor-kit) /
-[`@osm-editor-kit`](https://www.npmjs.com/org/osm-editor-kit).
-
 - Surface picker → filters smoothness options via `smoothnessMatrix[surface]`.
 - Each option shows vehicle icon + emoji + reference photo + description.
 - Emits `surface=…` / `smoothness=…`; clears `smoothness` when it becomes invalid.

@@ -3,10 +3,6 @@
 Shared `surface` + `smoothness` tagging data and UI for OpenStreetMap editors,
 initially extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete).
 
-Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org /
-[`@osm-editor-kit`](https://www.npmjs.com/org/osm-editor-kit) npm org (sibling of
-[`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index)).
-
 | Path | Package | Role |
 |------|---------|------|
 | `packages/data` | `@osm-editor-kit/surface-smoothness-data` | Canonical catalogue JSON + web image/icon assets |
