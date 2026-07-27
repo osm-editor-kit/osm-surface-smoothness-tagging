@@ -2,11 +2,20 @@
   "name": "@osm-editor-kit/surface-smoothness-data",
   "version": "0.0.0",
   "description": "Canonical surface/smoothness catalogue (JSON + web image/icon assets) extracted from StreetComplete",
+  "keywords": [
+    "openstreetmap",
+    "osm",
+    "smoothness",
+    "streetcomplete",
+    "surface",
+    "tagging"
+  ],
   "homepage": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/tree/main/packages/data#readme",
   "bugs": {
     "url": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues"
   },
   "license": "GPL-3.0-or-later",
+  "author": "Tobias Jordans",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/osm-editor-kit/osm-surface-smoothness-tagging.git",
@@ -16,20 +25,20 @@
     "dist"
   ],
   "type": "module",
-  "main": "dist/index.js",
-  "types": "dist/index.d.ts",
+  "sideEffects": false,
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "import": "./dist/index.js"
     },
     "./catalogue.json": "./dist/generated/catalogue.json",
     "./images/*": "./dist/generated/images/*",
-    "./icons/*": "./dist/generated/icons/*"
+    "./icons/*": "./dist/generated/icons/*",
+    "./package.json": "./package.json"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
     "bleach": "rm -rf node_modules dist",
@@ -38,11 +47,16 @@
     "build:clean": "rm -rf dist",
     "build:ts": "tsc -p tsconfig.build.json",
     "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "check-exports": "attw --pack . --ignore-rules cjs-resolves-to-esm no-resolution --profile node16",
     "extract": "bun run --cwd ../.. extract",
     "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
     "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
     "lint": "oxlint -c ../../oxlint.config.mjs .",
+    "prepublishOnly": "bun run build",
     "test": "vitest run",
     "type-check": "tsc --noEmit"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }
