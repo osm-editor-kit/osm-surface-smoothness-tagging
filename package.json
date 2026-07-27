@@ -8,17 +8,22 @@
     "build:mobile": "bun run scripts/build-mobile-assets.ts",
     "build:packages": "bun run --cwd packages/data build && bun run --cwd packages/id-field build",
     "check": "bun run --filter '*' check",
+    "check-exports": "bun run --filter @osm-editor-kit/surface-smoothness-data check-exports && bun run --filter @osm-editor-kit/surface-smoothness-id-field check-exports",
     "dev:demo": "bun run --cwd apps/demo dev",
     "dev:id-field": "bun run --cwd packages/id-field dev",
     "extract": "bun run scripts/extract-from-streetcomplete.ts",
     "format": "bun run --filter '*' format",
     "format:check": "bun run --filter '*' format:check",
     "lint": "bun run --filter '*' lint",
+    "release": "bun run build:packages && changeset publish",
     "sync:id-worktree": "bun run --cwd packages/id-field sync:id-worktree",
     "test": "bun run --filter '*' test",
-    "type-check": "bun run --filter '*' type-check"
+    "type-check": "bun run --filter '*' type-check",
+    "version-packages": "changeset version"
   },
   "devDependencies": {
+    "@arethetypeswrong/cli": "^0.18.5",
+    "@changesets/cli": "^2.31.1",
     "@osm-editor-kit/surface-smoothness-data": "workspace:*",
     "@types/bun": "latest",
     "oxfmt": "0.50.0",
