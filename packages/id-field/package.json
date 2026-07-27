@@ -2,14 +2,14 @@
   "name": "@osm-editor-kit/surface-smoothness-id-field",
   "version": "0.0.0",
   "description": "D3-based iD inspector field for combined surface + smoothness tagging",
-  "homepage": "https://github.com/osm-editor-kit/surface-smoothness-tagging/tree/main/packages/id-field#readme",
+  "homepage": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/tree/main/packages/id-field#readme",
   "bugs": {
-    "url": "https://github.com/osm-editor-kit/surface-smoothness-tagging/issues"
+    "url": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues"
   },
   "license": "GPL-3.0-or-later",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/osm-editor-kit/surface-smoothness-tagging.git",
+    "url": "git+https://github.com/osm-editor-kit/osm-surface-smoothness-tagging.git",
     "directory": "packages/id-field"
   },
   "files": [

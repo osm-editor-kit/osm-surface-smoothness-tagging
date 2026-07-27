@@ -1,5 +1,5 @@
 {
-  "name": "surface-smoothness-tagging",
+  "name": "osm-surface-smoothness-tagging",
   "private": true,
   "license": "GPL-3.0-or-later",
   "workspaces": ["packages/*", "apps/*"],

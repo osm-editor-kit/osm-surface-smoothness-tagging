@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "surface-smoothness-tagging",
+      "name": "osm-surface-smoothness-tagging",
       "devDependencies": {
         "@osm-editor-kit/surface-smoothness-data": "workspace:*",
         "@types/bun": "latest",
