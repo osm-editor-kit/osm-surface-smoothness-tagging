@@ -2,11 +2,20 @@
   "name": "@osm-editor-kit/surface-smoothness-id-field",
   "version": "0.0.0",
   "description": "D3-based iD inspector field for combined surface + smoothness tagging",
+  "keywords": [
+    "iD",
+    "openstreetmap",
+    "osm",
+    "smoothness",
+    "surface",
+    "tagging"
+  ],
   "homepage": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/tree/main/packages/id-field#readme",
   "bugs": {
     "url": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues"
   },
   "license": "GPL-3.0-or-later",
+  "author": "Tobias Jordans",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/osm-editor-kit/osm-surface-smoothness-tagging.git",
@@ -19,29 +28,32 @@
   "sideEffects": [
     "*.css"
   ],
-  "main": "dist/surface-smoothness-field.esm.js",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/surface-smoothness-field.esm.js",
-      "default": "./dist/surface-smoothness-field.esm.js"
+      "import": "./dist/index.js"
     },
-    "./surface-smoothness-field.css": "./dist/surface-smoothness-field.css"
+    "./surface-smoothness-field.css": "./dist/surface-smoothness-field.css",
+    "./package.json": "./package.json"
   },
   "publishConfig": {
-    "access": "public"
+    "access": "public",
+    "provenance": true
   },
   "scripts": {
-    "bleach": "rm -rf node_modules dist",
-    "build": "bun run build:js && bun run build:css && bun run build:types",
+    "bleach": "rm -rf node_modules dist dist-iife",
+    "build": "bun run build:clean && bun run build:js && bun run build:css && bun run build:types",
+    "build:clean": "rm -rf dist dist-iife",
     "build:css": "cp src/surface-smoothness-field.css dist/surface-smoothness-field.css",
     "build:js": "vite build --config vite.esm.config.ts && vite build --config vite.iife.config.ts",
     "build:types": "tsc -p tsconfig.build.json",
     "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "check-exports": "attw --pack . --ignore-rules cjs-resolves-to-esm no-resolution --profile node16",
     "dev": "bun run scripts/dev.ts",
     "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
     "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
     "lint": "oxlint -c ../../oxlint.config.mjs .",
+    "prepublishOnly": "bun run build",
     "sync:id-worktree": "bun run scripts/sync-to-id-worktree.ts",
     "test": "vitest run",
     "type-check": "tsc --noEmit"
@@ -56,5 +68,8 @@
     "@types/d3-selection": "^3.0.11",
     "typescript": "^5.9.3",
     "vite": "^8.0.13"
+  },
+  "engines": {
+    "node": ">=18"
   }
 }

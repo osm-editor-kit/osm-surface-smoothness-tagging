@@ -1,4 +1,4 @@
-// ESM entry — what Vite bundles into dist/surface-smoothness-field.esm.js and what
+// ESM entry — what Vite bundles into dist/index.js and what
 // the iD wrapper lazy-imports.
 
 export { createSurfaceSmoothnessField } from './createSurfaceSmoothnessField.impl.js'
