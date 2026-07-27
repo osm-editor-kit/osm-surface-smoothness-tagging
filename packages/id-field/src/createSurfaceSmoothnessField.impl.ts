@@ -2,7 +2,7 @@ import {
   catalogue,
   getSmoothnessOptionsForSurface,
   getSurfaceInfo,
-} from '@osm-surface-smoothness/data'
+} from '@osm-editor-kit/surface-smoothness-data'
 import { dispatch as d3_dispatch } from 'd3-dispatch'
 import { select as d3_select, type Selection } from 'd3-selection'
 import { resolveKeys, smoothnessChangePatch, surfaceChangePatch } from './logic.js'

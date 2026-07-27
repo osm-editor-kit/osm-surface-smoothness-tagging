@@ -1,8 +1,17 @@
 {
-  "name": "@osm-surface-smoothness/data",
+  "name": "@osm-editor-kit/surface-smoothness-data",
   "version": "0.0.0",
   "description": "Canonical surface/smoothness catalogue (JSON + web image/icon assets) extracted from StreetComplete",
+  "homepage": "https://github.com/osm-editor-kit/surface-smoothness-tagging/tree/main/packages/data#readme",
+  "bugs": {
+    "url": "https://github.com/osm-editor-kit/surface-smoothness-tagging/issues"
+  },
   "license": "GPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/osm-editor-kit/surface-smoothness-tagging.git",
+    "directory": "packages/data"
+  },
   "files": [
     "dist"
   ],
@@ -18,6 +27,9 @@
     "./catalogue.json": "./dist/generated/catalogue.json",
     "./images/*": "./dist/generated/images/*",
     "./icons/*": "./dist/generated/icons/*"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "bleach": "rm -rf node_modules dist",

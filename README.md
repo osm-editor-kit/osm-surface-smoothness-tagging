@@ -1,12 +1,16 @@
-# OSM Surface & Smoothness Tagging
+# Surface & Smoothness Tagging
 
-Monorepo providing shared `surface` + `smoothness` tagging data and UI, initially
-extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete).
+Shared `surface` + `smoothness` tagging data and UI for OpenStreetMap editors,
+initially extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete).
+
+Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org /
+[`@osm-editor-kit`](https://www.npmjs.com/org/osm-editor-kit) npm org (sibling of
+[`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index)).
 
 | Path | Package | Role |
 |------|---------|------|
-| `packages/data` | `@osm-surface-smoothness/data` | Canonical catalogue JSON + web image/icon assets |
-| `packages/id-field` | `@osm-surface-smoothness/id-field` | D3 inspector field for the iD editor |
+| `packages/data` | `@osm-editor-kit/surface-smoothness-data` | Canonical catalogue JSON + web image/icon assets |
+| `packages/id-field` | `@osm-editor-kit/surface-smoothness-id-field` | D3 inspector field for the iD editor |
 | `apps/demo` | — | Standalone test UI (mock iD adapters) |
 | `mobile/` | — | Generated StreetComplete / GoMap asset bundles (not npm) |
 | `scripts/` | — | `extract-from-streetcomplete.ts`, `build-mobile-assets.ts` |

@@ -3,9 +3,9 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "osm-surface-smoothness-monorepo",
+      "name": "surface-smoothness-tagging",
       "devDependencies": {
-        "@osm-surface-smoothness/data": "workspace:*",
+        "@osm-editor-kit/surface-smoothness-data": "workspace:*",
         "@types/bun": "latest",
         "oxfmt": "0.50.0",
         "oxlint": "1.65.0",
@@ -14,11 +14,11 @@
       },
     },
     "apps/demo": {
-      "name": "@osm-surface-smoothness/demo",
+      "name": "@osm-editor-kit/surface-smoothness-demo",
       "version": "0.0.0",
       "dependencies": {
-        "@osm-surface-smoothness/data": "workspace:*",
-        "@osm-surface-smoothness/id-field": "workspace:*",
+        "@osm-editor-kit/surface-smoothness-data": "workspace:*",
+        "@osm-editor-kit/surface-smoothness-id-field": "workspace:*",
         "d3-selection": "~3.0.0",
       },
       "devDependencies": {
@@ -28,14 +28,14 @@
       },
     },
     "packages/data": {
-      "name": "@osm-surface-smoothness/data",
+      "name": "@osm-editor-kit/surface-smoothness-data",
       "version": "0.0.0",
     },
     "packages/id-field": {
-      "name": "@osm-surface-smoothness/id-field",
+      "name": "@osm-editor-kit/surface-smoothness-id-field",
       "version": "0.0.0",
       "dependencies": {
-        "@osm-surface-smoothness/data": "workspace:*",
+        "@osm-editor-kit/surface-smoothness-data": "workspace:*",
         "d3-dispatch": "~3.0.1",
         "d3-selection": "~3.0.0",
       },
@@ -58,11 +58,11 @@
 
     "@napi-rs/wasm-runtime": ["@napi-rs/wasm-runtime@1.1.5", "", { "dependencies": { "@tybys/wasm-util": "^0.10.2" }, "peerDependencies": { "@emnapi/core": "^1.7.1", "@emnapi/runtime": "^1.7.1" } }, "sha512-AWPoBRJ9tsnVhor4sjO7rkni+7p+2IAEFj6cx06UgP10jkQHqay/36uRV/bFkgrh18D9vb4cr8Q0Pthskgzy+Q=="],
 
-    "@osm-surface-smoothness/data": ["@osm-surface-smoothness/data@workspace:packages/data"],
+    "@osm-editor-kit/surface-smoothness-data": ["@osm-editor-kit/surface-smoothness-data@workspace:packages/data"],
 
-    "@osm-surface-smoothness/demo": ["@osm-surface-smoothness/demo@workspace:apps/demo"],
+    "@osm-editor-kit/surface-smoothness-demo": ["@osm-editor-kit/surface-smoothness-demo@workspace:apps/demo"],
 
-    "@osm-surface-smoothness/id-field": ["@osm-surface-smoothness/id-field@workspace:packages/id-field"],
+    "@osm-editor-kit/surface-smoothness-id-field": ["@osm-editor-kit/surface-smoothness-id-field@workspace:packages/id-field"],
 
     "@oxc-project/types": ["@oxc-project/types@0.133.0", "", {}, "sha512-KzkdCd6Uxqnf6l3HOw1xfatAlUURA0g14cvBYFyJ5SaNOQbOUvBr9PKArcPcrNIeRsBdgcUzOGrhKveVpvOIGA=="],
 

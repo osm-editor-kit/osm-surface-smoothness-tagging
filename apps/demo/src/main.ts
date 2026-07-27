@@ -1,5 +1,5 @@
-import '@osm-surface-smoothness/id-field/surface-smoothness-field.css'
-import { createSurfaceSmoothnessField } from '@osm-surface-smoothness/id-field'
+import '@osm-editor-kit/surface-smoothness-id-field/surface-smoothness-field.css'
+import { createSurfaceSmoothnessField } from '@osm-editor-kit/surface-smoothness-id-field'
 import { select } from 'd3-selection'
 
 // Resolve catalogue asset paths ("images/x.jpg") to bundled URLs from the data package.

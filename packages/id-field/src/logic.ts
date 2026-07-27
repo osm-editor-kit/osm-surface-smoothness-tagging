@@ -1,6 +1,6 @@
 // Pure tag logic — no DOM, unit-tested independently of the D3 widget.
 
-import { getSmoothnessOptionsForSurface } from '@osm-surface-smoothness/data'
+import { getSmoothnessOptionsForSurface } from '@osm-editor-kit/surface-smoothness-data'
 import type { SurfaceSmoothnessFieldDefinition, TagPatch } from './types.js'
 
 export interface FieldKeys {

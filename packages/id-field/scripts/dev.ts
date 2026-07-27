@@ -34,4 +34,6 @@ await Promise.all(
   ),
 )
 
-console.log('Watching @osm-surface-smoothness/id-field (syncs to iD worktree on rebuild)')
+console.log(
+  'Watching @osm-editor-kit/surface-smoothness-id-field (syncs to iD worktree on rebuild)',
+)

@@ -1,5 +1,5 @@
 {
-  "name": "osm-surface-smoothness-monorepo",
+  "name": "surface-smoothness-tagging",
   "private": true,
   "license": "GPL-3.0-or-later",
   "workspaces": ["packages/*", "apps/*"],
@@ -19,7 +19,7 @@
     "type-check": "bun run --filter '*' type-check"
   },
   "devDependencies": {
-    "@osm-surface-smoothness/data": "workspace:*",
+    "@osm-editor-kit/surface-smoothness-data": "workspace:*",
     "@types/bun": "latest",
     "oxfmt": "0.50.0",
     "oxlint": "1.65.0",
