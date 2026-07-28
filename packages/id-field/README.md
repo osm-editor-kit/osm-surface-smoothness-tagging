@@ -81,15 +81,37 @@ Also exported for hosts that need the same tag rules without the UI:
 
 ## Using with iD
 
-This package is the field implementation. iD typically:
+**Published workflow (normal):** the iD worktree depends on this package from npm and
+copies runtime assets into `dist/surface-smoothness-field/` via
+`npm run dist:surface-smoothness-field` (ESM/IIFE/CSS from this package, images/icons
+from `@osm-editor-kit/surface-smoothness-data`). iD lazy-imports that ESM bundle, injects
+the CSS, and passes `context.asset('surface-smoothness-field/' + path)` as `assetUrl`.
 
-1. Lazy-imports the ESM bundle and injects the CSS.
-2. Passes `context.asset(...)` as `assetUrl` so images/icons load from iD’s static asset tree.
-3. Forwards `change` events into iD’s field `dispatch('change', tags)`.
-
-Wire it as a custom field type (for example `surface_smoothness`) in your iD fork or
+Wire it as a custom field type (for example `surfaceSmoothness`) in your iD fork or
 plugin, then point presets at that type instead of separate `surface` / `smoothness`
 combo fields.
+
+### Local development against the iD worktree
+
+Use this when you are editing the field package and want to try changes in iD **before**
+publishing a new npm version.
+
+```bash
+# terminal 1 — watch-build + copy into the worktree on every rebuild
+bun run dev:id-field
+# or once: bun run sync:id-worktree
+
+# terminal 2
+cd ../iD-surface-smoothness-worktree && npm start
+```
+
+`sync:id-worktree` (and the `dev` watcher) copy the local build into
+`<iD-worktree>/dist/surface-smoothness-field/`, same paths iD’s lazy import expects.
+Override the target with `ID_WORKTREE=/path/to/iD`.
+
+After you publish, bump the worktree’s `@osm-editor-kit/surface-smoothness-*` versions and
+run `npm run dist:surface-smoothness-field` again so the worktree tracks the registry,
+not a one-off sync.
 
 ## License
 

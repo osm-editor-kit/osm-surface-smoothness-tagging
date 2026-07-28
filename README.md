@@ -26,6 +26,16 @@ bun run build:packages && bun run check-exports
 bun run dev:demo
 ```
 
+### iD worktree
+
+- **Published path:** the sibling `iD-surface-smoothness-worktree` installs
+  `@osm-editor-kit/surface-smoothness-id-field` from npm and runs
+  `npm run dist:surface-smoothness-field` to populate `dist/surface-smoothness-field/`.
+- **Pre-publish path:** while iterating on the field package, run `bun run dev:id-field`
+  (or `bun run sync:id-worktree`) to copy a local build into that same dist folder so iD
+  picks up changes without an npm publish. Details:
+  [`packages/id-field/README.md`](packages/id-field/README.md#local-development-against-the-id-worktree).
+
 ## Release
 
 Same [changesets](https://github.com/changesets/changesets) flow as
