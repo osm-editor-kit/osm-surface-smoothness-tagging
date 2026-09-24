@@ -17,5 +17,7 @@ export default defineConfig({
     '**/build/**',
     '**/coverage/**',
     '**/generated/**',
+    // Wide markdown tables (catalogue preview) cannot be column-padded usefully.
+    '**/*.md',
   ],
 })
