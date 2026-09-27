@@ -8,13 +8,8 @@ const imageMods = import.meta.glob('../../../packages/data/dist/generated/images
   query: '?url',
   import: 'default',
 })
-const iconMods = import.meta.glob('../../../packages/data/dist/generated/icons/*.svg', {
-  eager: true,
-  query: '?url',
-  import: 'default',
-})
 const assetByName = new Map<string, string>()
-for (const [path, url] of Object.entries({ ...imageMods, ...iconMods })) {
+for (const [path, url] of Object.entries(imageMods)) {
   assetByName.set(path.split('/').pop()!, url as string)
 }
 if (assetByName.size === 0) {

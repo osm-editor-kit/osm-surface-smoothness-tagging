@@ -35,8 +35,6 @@ describe('catalogue', () => {
 
   it('has every referenced asset on disk', () => {
     const refs = new Set<string>(allImagePaths())
-    for (const l of Object.values(catalogue.smoothnessLevels))
-      if (l.vehicleIcon) refs.add(l.vehicleIcon)
     const missing = [...refs].filter((r) => !existsSync(join(genDir, r)))
     expect(missing).toEqual([])
   })

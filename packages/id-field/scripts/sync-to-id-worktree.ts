@@ -1,4 +1,4 @@
-// Copies the built field bundle + the data package's images/icons into the iD
+// Copies the built field bundle + the data package's images into the iD
 // worktree so iD can serve them at dist/surface-smoothness-field/.
 //
 // Exported as a function so the dev watcher can re-run it on every rebuild (a
@@ -41,9 +41,9 @@ export async function syncToIdWorktree() {
     await cp(cssSrc, join(targetDir, 'surface-smoothness-field.css'), { force: true })
   }
 
-  for (const dir of ['images', 'icons']) {
-    const src = join(dataGen, dir)
-    if (existsSync(src)) await cp(src, join(targetDir, dir), { recursive: true, force: true })
+  const imagesSrc = join(dataGen, 'images')
+  if (existsSync(imagesSrc)) {
+    await cp(imagesSrc, join(targetDir, 'images'), { recursive: true, force: true })
   }
 
   console.log(`Synced field bundle + assets → ${targetDir}`)

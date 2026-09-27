@@ -1,14 +1,14 @@
 # [@osm-editor-kit/surface-smoothness-data](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-data)
 
 Standalone catalogue of OpenStreetMap `surface` / `smoothness` values, with
-lookup helpers and web-ready reference photos and vehicle icons.
+lookup helpers and web-ready reference photos.
 
 Originally extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete);
 usable from any editor, app, or tooling that needs the same matrix and assets.
 
 - **ESM-only** (`type: module`), zero runtime dependencies.
 - Typed `catalogue` object plus small helpers.
-- Subpath exports for raw JSON and static assets (`./catalogue.json`, `./images/*`, `./icons/*`).
+- Subpath exports for raw JSON and static assets (`./catalogue.json`, `./images/*`).
 
 Consumed by
 [`@osm-editor-kit/surface-smoothness-id-field`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-id-field)
@@ -40,8 +40,7 @@ hasSmoothnessQuest('grass') // → false
 
 for (const option of getSmoothnessOptionsForSurface('asphalt')) {
   option.smoothness // "excellent" | "good" | …
-  option.level?.emoji // vehicle emoji
-  option.level?.vehicleIcon // "icons/…"
+  option.level?.emoji // "usable by" vehicle emoji
   option.cell.photo // "images/…"
   option.cell.description
 }
@@ -53,14 +52,14 @@ for (const option of getSmoothnessOptionsForSurface('asphalt')) {
 
 | Field                        | Description                                                                   |
 | ---------------------------- | ----------------------------------------------------------------------------- |
-| `smoothnessLevels`           | OSM `smoothness` values → title, emoji, vehicle icon path                     |
-| `surfaces`                   | OSM `surface` values → title, icon path, whether a smoothness quest applies   |
+| `smoothnessLevels`           | OSM `smoothness` values → title, "usable by" emoji                            |
+| `surfaces`                   | OSM `surface` values → title, photo path, whether a smoothness quest applies  |
 | `surfaceAliases`             | Tag aliases → canonical surface (e.g. `concrete:plates` → `concrete`)         |
 | `surfacesForSmoothnessQuest` | Surfaces StreetComplete asks smoothness for                                   |
 | `smoothnessMatrix`           | `surface` → `smoothness` → `{ photo, description }` (cells with a photo only) |
 | `attribution`                | Per-file license and source for reference photos                              |
 
-Asset paths in the catalogue are package-relative (`images/…`, `icons/…`). Resolve
+Asset paths in the catalogue are package-relative (`images/…`). Resolve
 them with your bundler or copy the files from the package:
 
 ```ts
@@ -99,5 +98,10 @@ StreetComplete-style matrix, laid out like the [Verkehrswende meetup smoothness 
 
 ## License
 
-GPL-3.0-or-later (StreetComplete-compatible). Individual reference photos keep
-their own licenses (CC-BY-SA / CC0 / PD) — see `catalogue.attribution`.
+[MIT](LICENSE) for the code and the catalogue.
+
+Photos and texts in `packages/data` have their own sources:
+
+- **Reference photos** keep their own licenses (CC-BY, CC-BY-SA, CC0, public domain). They are listed per file in `catalogue.attribution`, and any UI that shows them must keep that attribution.
+- **Labels and descriptions** come from [StreetComplete](https://github.com/streetcomplete/StreetComplete)'s English strings. We treat them as descriptions of OSM tag values from the shared OSM ecosystem. See [#1](https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues/1).
+- **Vehicle icons**: StreetComplete's vehicle SVGs are GPL-3.0, so this repo does not include them. It uses the "usable by" emoji instead.

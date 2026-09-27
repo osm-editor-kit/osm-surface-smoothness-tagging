@@ -6,10 +6,8 @@ export interface SmoothnessLevel {
   osmValue: string
   /** Short English label (from StreetComplete strings.xml). */
   title: string | null
-  /** "Usable by" vehicle emoji. */
+  /** "Usable by" vehicle emoji. Used instead of StreetComplete's GPL vehicle SVGs. */
   emoji: string | null
-  /** Package-relative path to the vehicle SVG, e.g. "icons/skateboard.svg". */
-  vehicleIcon: string | null
 }
 
 export interface SurfaceInfo {

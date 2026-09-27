@@ -14,7 +14,7 @@
   "bugs": {
     "url": "https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues"
   },
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "author": "Tobias Jordans",
   "repository": {
     "type": "git",

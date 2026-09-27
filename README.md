@@ -8,7 +8,7 @@ Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org (sa
 
 | Path | Package | Role |
 |------|---------|------|
-| `packages/data` | [`@osm-editor-kit/surface-smoothness-data`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-data) | Canonical catalogue JSON + web image/icon assets (ESM-only) |
+| `packages/data` | [`@osm-editor-kit/surface-smoothness-data`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-data) | Canonical catalogue JSON + web image assets (ESM-only) |
 | `packages/id-field` | [`@osm-editor-kit/surface-smoothness-id-field`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-id-field) | D3 inspector field for the iD editor (ESM-only) |
 | `apps/demo` | — | Standalone test UI (mock iD adapters) |
 | `mobile/` | — | Generated StreetComplete / GoMap asset bundles (not npm) |
@@ -60,5 +60,10 @@ publishing when you add a release workflow later).
 
 ## License
 
-GPL-3.0-or-later (StreetComplete-compatible). Reference photos carry their own
-licenses (CC-BY-SA / CC0 / PD) tracked in the data package attribution.
+[MIT](LICENSE) for the code and the catalogue.
+
+Photos and texts in `packages/data` have their own sources:
+
+- **Reference photos** keep their own licenses (CC-BY, CC-BY-SA, CC0, public domain). They are listed per file in `catalogue.attribution`, and any UI that shows them must keep that attribution.
+- **Labels and descriptions** come from [StreetComplete](https://github.com/streetcomplete/StreetComplete)'s English strings. We treat them as descriptions of OSM tag values from the shared OSM ecosystem. See [#1](https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues/1).
+- **Vehicle icons**: StreetComplete's vehicle SVGs are GPL-3.0, so this repo does not include them. It uses the "usable by" emoji instead.

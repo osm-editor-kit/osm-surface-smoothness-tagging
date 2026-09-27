@@ -2,7 +2,9 @@
 //
 // Parses the StreetComplete Kotlin sources + Android resources into the canonical
 // surface/smoothness catalogue, and copies the referenced reference photos (JPEG)
-// and vehicle icons (SVG) into packages/data/src/generated/.
+// into packages/data/src/generated/. Vehicle icons are not copied: StreetComplete's
+// SVGs are GPL-3.0 and this repo is MIT, so the catalogue uses the "usable by" emoji
+// instead (see issue #1).
 //
 // Re-runnable: reads a local StreetComplete clone (STREETCOMPLETE_PATH, default
 // /Users/tordans/Development/OSM/StreetComplete). Output is deterministic (no
@@ -16,7 +18,6 @@ const SC = process.env.STREETCOMPLETE_PATH ?? '/Users/tordans/Development/OSM/St
 const ROOT = join(import.meta.dirname, '..')
 const GEN = join(ROOT, 'packages/data/src/generated')
 const IMAGES_OUT = join(GEN, 'images')
-const ICONS_OUT = join(GEN, 'icons')
 
 const F = {
   smoothness: `${SC}/app/src/commonMain/kotlin/de/westnordost/streetcomplete/quests/smoothness/Smoothness.kt`,
@@ -27,7 +28,6 @@ const F = {
   strings: `${SC}/app/src/commonMain/composeResources/values/strings.xml`,
   authors: `${SC}/app/src/commonMain/composeResources/files/authors.txt`,
   drawableXhdpi: `${SC}/app/src/commonMain/composeResources/drawable-xhdpi`,
-  vehicleSvgs: `${SC}/res/graphics/smoothness`,
 }
 
 function read(path: string): string {
@@ -100,7 +100,6 @@ const smoothnessEnum = [...smoothnessSrc.matchAll(/^\s*([A-Z_]+)\("([^"]+)"\)/gm
 }))
 
 // Smoothness per-level attributes
-const iconArms = enumArms(whenBlock(itemSrc, /Smoothness\.icon\b[^{]*when \(this\) \{/))
 const emojiArms = enumArms(whenBlock(itemSrc, /Smoothness\.emoji\b[^{]*when \(this\) \{/))
 const titleArms = enumArms(whenBlock(itemSrc, /Smoothness\.title\b[^{]*when \(this\) \{/))
 
@@ -194,10 +193,8 @@ function attributionFor(file: string): { license: string; source: string } | nul
 
 rmSync(GEN, { recursive: true, force: true })
 mkdirSync(IMAGES_OUT, { recursive: true })
-mkdirSync(ICONS_OUT, { recursive: true })
 
 const copiedImages = new Set<string>()
-const copiedIcons = new Set<string>()
 const missingImages: string[] = []
 const missingAttribution: string[] = []
 
@@ -217,23 +214,6 @@ function image(drawable: string | null): string | null {
   return `images/${file}`
 }
 
-/** Copy a smoothness_*.svg vehicle icon; returns catalogue path ("icons/x.svg"). */
-function vehicleIcon(drawable: string | null): string | null {
-  if (!drawable) return null
-  const short = drawable.replace(/^smoothness_/, '')
-  const file = `${short}.svg`
-  const srcFile = join(F.vehicleSvgs, file)
-  if (!existsSync(srcFile)) {
-    missingImages.push(file)
-    return null
-  }
-  if (!copiedIcons.has(file)) {
-    copyFileSync(srcFile, join(ICONS_OUT, file))
-    copiedIcons.add(file)
-  }
-  return `icons/${file}`
-}
-
 // smoothnessLevels
 const smoothnessLevels: Record<string, unknown> = {}
 for (const { name, osmValue } of smoothnessEnum) {
@@ -241,7 +221,6 @@ for (const { name, osmValue } of smoothnessEnum) {
     osmValue,
     title: text(stringKeyOf(titleArms.get(name) ?? '')),
     emoji: emojiOf(emojiArms.get(name) ?? ''),
-    vehicleIcon: vehicleIcon(drawableOf(iconArms.get(name) ?? '')),
   }
 }
 
@@ -288,13 +267,6 @@ for (const file of [...copiedImages].sort()) {
     missingAttribution.push(file)
   }
 }
-for (const file of [...copiedIcons].sort()) {
-  attribution.push({
-    file: `icons/${file}`,
-    license: 'GPL-3.0-or-later',
-    source: 'StreetComplete (res/graphics/smoothness)',
-  })
-}
 
 const catalogue = {
   version: '0.0.0',
@@ -307,7 +279,6 @@ const catalogue = {
       matrixSurfaces: Object.keys(smoothnessMatrix).length,
       matrixCells: Object.values(smoothnessMatrix).reduce((n, c) => n + Object.keys(c).length, 0),
       images: copiedImages.size,
-      icons: copiedIcons.size,
     },
   },
   smoothnessLevels,

@@ -1,4 +1,4 @@
-// Copies generated assets (images, icons, catalogue.json) into dist/ after tsc.
+// Copies generated assets (images, catalogue.json) into dist/ after tsc.
 // tsc compiles src/generated/catalogue.ts but does not copy non-TS files.
 
 import { cpSync, existsSync, mkdirSync } from 'node:fs'
@@ -14,9 +14,7 @@ if (!existsSync(join(src, 'catalogue.json'))) {
 }
 
 mkdirSync(dist, { recursive: true })
-for (const dir of ['images', 'icons']) {
-  if (existsSync(join(src, dir))) cpSync(join(src, dir), join(dist, dir), { recursive: true })
-}
+cpSync(join(src, 'images'), join(dist, 'images'), { recursive: true })
 cpSync(join(src, 'catalogue.json'), join(dist, 'catalogue.json'))
 
 console.log('Copied generated assets → packages/data/dist/generated/')

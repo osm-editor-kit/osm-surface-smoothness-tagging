@@ -8,58 +8,49 @@
       "smoothnessLevels": 8,
       "matrixSurfaces": 8,
       "matrixCells": 43,
-      "images": 55,
-      "icons": 8
+      "images": 55
     }
   },
   "smoothnessLevels": {
     "excellent": {
       "osmValue": "excellent",
       "title": "Smooth and even",
-      "emoji": "🛹",
-      "vehicleIcon": "icons/skateboard.svg"
+      "emoji": "🛹"
     },
     "good": {
       "osmValue": "good",
       "title": "Mostly even",
-      "emoji": "🛴",
-      "vehicleIcon": "icons/scooter.svg"
+      "emoji": "🛴"
     },
     "intermediate": {
       "osmValue": "intermediate",
       "title": "A little bumpy",
-      "emoji": "🚲",
-      "vehicleIcon": "icons/city_bike.svg"
+      "emoji": "🚲"
     },
     "bad": {
       "osmValue": "bad",
       "title": "Bumpy",
-      "emoji": "🚗",
-      "vehicleIcon": "icons/car.svg"
+      "emoji": "🚗"
     },
     "very_bad": {
       "osmValue": "very_bad",
       "title": "Very bumpy",
-      "emoji": "🚙",
-      "vehicleIcon": "icons/suv.svg"
+      "emoji": "🚙"
     },
     "horrible": {
       "osmValue": "horrible",
       "title": "Very bumpy and uneven",
-      "emoji": "🛻",
-      "vehicleIcon": "icons/pickup_truck.svg"
+      "emoji": "🛻"
     },
     "very_horrible": {
       "osmValue": "very_horrible",
       "title": "Almost impassable",
-      "emoji": "🚜",
-      "vehicleIcon": "icons/tractor.svg"
+      "emoji": "🚜"
     },
     "impassable": {
       "osmValue": "impassable",
       "title": "Impassable",
-      "emoji": "🚶",
-      "vehicleIcon": "icons/pedestrian.svg"
+      "emoji": "🚶"
     }
   },
   "surfaces": {
@@ -705,46 +696,6 @@
       "file": "images/surface_woodchips.jpg",
       "license": "CC-BY-SA 3.0",
       "source": "https://commons.wikimedia.org/wiki/File:Woodchips_surface.jpg (10992-osm)"
-    },
-    {
-      "file": "icons/car.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/city_bike.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/pedestrian.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/pickup_truck.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/scooter.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/skateboard.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/suv.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
-    },
-    {
-      "file": "icons/tractor.svg",
-      "license": "GPL-3.0-or-later",
-      "source": "StreetComplete (res/graphics/smoothness)"
     }
   ]
 }

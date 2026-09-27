@@ -4,7 +4,7 @@ D3 inspector field for the [iD editor](https://github.com/openstreetmap/iD): pic
 `surface` and a matching `smoothness` with StreetComplete-style reference photos.
 
 - Choose a surface → smoothness options are filtered to that surface’s matrix.
-- Each smoothness option shows a vehicle icon, emoji, reference photo, and short description.
+- Each smoothness option shows a "usable by" vehicle emoji, a reference photo, and a short description.
 - Emits tag patches for `surface` / `smoothness`; clears `smoothness` when it is no longer valid for the selected surface.
 - **ESM-only** (`type: module`). Import the CSS side effect separately.
 
@@ -30,7 +30,7 @@ import { select } from 'd3-selection'
 const field = createSurfaceSmoothnessField(
   { surfaceKey: 'surface', smoothnessKey: 'smoothness' },
   {
-    // Map catalogue paths like "images/foo.jpg" / "icons/bar.svg" to URLs
+    // Map catalogue paths like "images/foo.jpg" to URLs
     // your host can serve (iD: context.asset(...), Vite: import.meta.glob, …).
     assetUrl: (path) => `/assets/surface-smoothness/${path}`,
   },
@@ -66,7 +66,7 @@ createSurfaceSmoothnessField(field?, context?, adapters?)
 ```
 
 - **`field`** — `surfaceKey` / `smoothnessKey` (defaults `"surface"` / `"smoothness"`), optional `safeid`.
-- **`context.assetUrl(path)`** — resolve catalogue asset paths to browser URLs. Required for photos and icons to show.
+- **`context.assetUrl(path)`** — resolve catalogue asset paths to browser URLs. Required for photos to show.
 - **`adapters.t(key, fallback)`** — translate UI labels.
 
 ### Helpers
@@ -115,5 +115,5 @@ not a one-off sync.
 
 ## License
 
-GPL-3.0-or-later. Reference photos keep their own licenses (CC-BY-SA / CC0 / PD);
-see attribution in `@osm-editor-kit/surface-smoothness-data`.
+[MIT](LICENSE). Reference photos keep their own licenses (CC-BY, CC-BY-SA, CC0, public domain);
+see `catalogue.attribution` in `@osm-editor-kit/surface-smoothness-data`.

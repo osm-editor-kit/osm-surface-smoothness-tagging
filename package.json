@@ -1,7 +1,7 @@
 {
   "name": "osm-surface-smoothness-tagging",
   "private": true,
-  "license": "GPL-3.0-or-later",
+  "license": "MIT",
   "workspaces": ["packages/*", "apps/*"],
   "scripts": {
     "build": "bun run extract && bun run build:packages && bun run build:mobile && bun run --cwd apps/demo build",
