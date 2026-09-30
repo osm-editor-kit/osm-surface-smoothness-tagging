@@ -16,90 +16,87 @@
   font-size: 12px;
 }
 
-.ssf-step + .ssf-step {
-  margin-top: 6px;
-}
-
-.ssf-step-label {
-  margin: 0 0 3px;
-  font-weight: bold;
-}
-
 .surface-smoothness-field button {
   font: inherit;
   color: inherit;
   cursor: pointer;
 }
 
-/* ---- step done: one compact row ---- */
+/* ---- the two tiles: surface and smoothness ---- */
 
-.ssf-summary {
+.ssf-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 3px;
+}
+.ssf-value {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-  height: 44px;
-  padding: 0 8px 0 0;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0;
   overflow: hidden;
   text-align: start;
   background: var(--ssf-input-bg);
   border: 0;
   border-radius: 4px;
 }
-.ssf-summary:hover,
-.ssf-summary:focus-visible {
+.ssf-value:hover,
+.ssf-value:focus-visible {
   background: var(--ssf-hover-bg);
 }
-.ssf-summary-visual {
-  flex: 0 0 58px;
-  align-self: stretch;
+.ssf-value-visual {
   display: flex;
+  flex: 0 0 auto;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  height: 48px;
+  overflow: hidden;
   background: var(--ssf-sidebar-bg);
 }
-.ssf-summary-visual img {
+.ssf-value-visual img {
+  display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
-.ssf-summary-emoji {
+.ssf-value-emoji {
   font-size: 20px;
 }
-.ssf-summary-text {
-  flex: 1 1 auto;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-}
-.ssf-summary-title,
-.ssf-summary-tag {
+.ssf-value-title {
   overflow: hidden;
+  padding: 3px 6px 4px;
   white-space: nowrap;
   text-overflow: ellipsis;
-}
-.ssf-summary-title {
   color: var(--ssf-accent);
 }
-.ssf-summary-tag {
-  font-family: monospace;
-  font-size: 11px;
+/* not set yet: an empty frame in the border color, the name as placeholder */
+.ssf-value.empty {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--ssf-border);
+}
+.ssf-value.empty .ssf-value-visual {
+  background: none;
+}
+.ssf-value.empty .ssf-value-title {
   color: var(--ssf-muted);
 }
-.ssf-summary-change {
-  flex: 0 0 auto;
-  font-size: 11px;
-  color: var(--ssf-muted);
+.ssf-value.open {
+  outline: 2px solid var(--ssf-accent);
+  outline-offset: -2px;
 }
-.ssf-summary:hover .ssf-summary-change {
-  color: var(--ssf-accent);
+
+/* ---- the open picker below the tiles ---- */
+
+.ssf-picker {
+  margin-top: 3px;
 }
 
 /* ---- step 1: surface photos ---- */
 
 .ssf-tiles {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(76px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(56px, 1fr));
   gap: 3px;
 }
 .ssf-tile {
@@ -139,8 +136,8 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin: 3px 3px 0;
-  font-size: 11px;
+  margin: 2px 2px 0;
+  font-size: 10px;
   line-height: 1.2;
   color: var(--ssf-accent);
 }
@@ -156,7 +153,7 @@
 
 .ssf-cards {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
   gap: 3px;
 }
 .ssf-levels {
@@ -197,19 +194,19 @@
   display: flex;
   align-items: center;
   gap: 5px;
-  min-height: 26px;
-  padding: 2px 6px;
+  min-height: 22px;
+  padding: 2px 4px;
 }
 .ssf-card-emoji {
   flex: 0 0 auto;
-  font-size: 14px;
+  font-size: 12px;
 }
 .ssf-card-title {
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.2;
   color: var(--ssf-accent);
 }

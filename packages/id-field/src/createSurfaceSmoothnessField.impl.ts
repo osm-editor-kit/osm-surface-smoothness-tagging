@@ -37,11 +37,10 @@ type TextRow = {
 }
 
 /**
- * Surface and smoothness in two steps, photos first:
- * 1. Surface: a grid of photos (the usual surfaces, the rest behind "More"). Once chosen, one
- *    compact row with the photo; clicking it opens the grid again.
- * 2. Smoothness (after a surface): StreetComplete's reference photos for that surface, or every
- *    level with its emoji where there are none. Once chosen, one compact row as well.
+ * Surface and smoothness, photos first: two tiles side by side (the surface, its smoothness),
+ * each with its photo and label, or an empty frame while not set. Clicking a tile opens its
+ * picker below: the surface first (the usual surfaces, the rest behind "More"), and after a
+ * surface the smoothness photos for it (or every level with its emoji where there are none).
  * The `text` mode shows plain inputs instead (any value, also one without a photo).
  */
 export function createSurfaceSmoothnessField(
@@ -57,9 +56,8 @@ export function createSurfaceSmoothnessField(
   let _tags: FieldTags = {}
   let _root: Sel = d3_select<any, unknown>(null as any)
   let _mode: SurfaceSmoothnessMode = 'images'
-  /** The grid / cards are open although a value is set ("change" was clicked). */
-  let _editSurface = false
-  let _editSmoothness = false
+  /** The picker open below the two tiles, if any. */
+  let _open: 'surface' | 'smoothness' | undefined
   let _allSurfaces = false
 
   const value = (key: string): string | undefined => {
@@ -82,17 +80,25 @@ export function createSurfaceSmoothnessField(
   }
 
   function chooseSurface(surface: string | undefined) {
-    _editSurface = false
     _allSurfaces = false
+    // the smoothness for this surface comes next
+    _open = surface ? 'smoothness' : undefined
     if (surface === value(keys.surfaceKey)) return render()
-    // the smoothness step comes next
-    _editSmoothness = false
     emit(surfaceChangePatch(value(keys.smoothnessKey), surface, keys))
   }
 
   function chooseSmoothness(smoothness: string | undefined) {
-    _editSmoothness = false
+    _open = undefined
     emit(smoothnessChangePatch(smoothness, keys))
+  }
+
+  /** Clicking a tile opens its picker (the surface one first), clicking it again closes it. */
+  function toggle(picker: 'surface' | 'smoothness') {
+    const needsSurface = picker === 'smoothness' && !value(keys.surfaceKey)
+    const next = needsSurface ? 'surface' : picker
+    _open = _open === next ? undefined : next
+    _allSurfaces = false
+    render()
   }
 
   /** A direct child with this class, created once. */
@@ -135,96 +141,81 @@ export function createSurfaceSmoothnessField(
   function renderImages(root: Sel) {
     const surface = value(keys.surfaceKey)
     const smoothness = value(keys.smoothnessKey)
+    const choice = smoothnessChoices(surface).find((c) => c.smoothness === smoothness)
+    const mixed = t('multiple_values', 'Multiple values')
 
-    // step 1: surface
-    const step1 = oneChild(root, 'div', 'ssf-step ssf-step-surface')
-    if ((!surface && !isMixed(keys.surfaceKey)) || _editSurface) {
-      step1.selectAll(':scope > .ssf-summary').remove()
-      renderSurfaceGrid(step1, surface)
-    } else {
-      step1.selectAll(':scope > .ssf-tiles').remove()
-      renderSummary(step1, {
-        photo: surface ? (getSurfaceInfo(surface)?.icon ?? undefined) : undefined,
-        emoji: undefined,
-        title: surface ? surfaceTitle(surface) : t('multiple_values', 'Multiple values'),
-        tag: surface ? `${keys.surfaceKey}=${surface}` : '',
-        onClick: () => {
-          _editSurface = true
-          render()
-        },
-      })
-    }
+    // two tiles side by side: the surface and its smoothness
+    const pair = oneChild(root, 'div', 'ssf-pair')
+    renderValueTile(pair, {
+      id: 'surface',
+      photo: surface ? (getSurfaceInfo(surface)?.icon ?? undefined) : undefined,
+      emoji: undefined,
+      title: isMixed(keys.surfaceKey) ? mixed : surface ? surfaceTitle(surface) : undefined,
+      placeholder: t('surface', 'Surface'),
+      tag: surface ? `${keys.surfaceKey}=${surface}` : undefined,
+    })
+    renderValueTile(pair, {
+      id: 'smoothness',
+      photo: choice?.cell?.photo,
+      emoji: smoothness ? (catalogue.smoothnessLevels[smoothness]?.emoji ?? undefined) : undefined,
+      title: isMixed(keys.smoothnessKey)
+        ? mixed
+        : smoothness
+          ? smoothnessTitle(smoothness)
+          : undefined,
+      placeholder: t('smoothness', 'Smoothness'),
+      tag: smoothness ? `${keys.smoothnessKey}=${smoothness}` : undefined,
+    })
 
-    // step 2: smoothness, once there is a surface
-    const step2 = root.selectAll(':scope > .ssf-step-smoothness').data(surface ? [0] : [])
-    step2.exit().remove()
-    const step2Root = step2
+    // the open picker, below the tiles
+    const picker = root.selectAll(':scope > .ssf-picker').data(_open ? [_open] : [], (d: any) => d)
+    picker.exit().remove()
+    const pickerRoot = picker
       .enter()
       .append('div')
-      .attr('class', 'ssf-step ssf-step-smoothness')
-      .merge(step2 as any)
-    if (!surface) return
-
-    oneChild(step2Root, 'div', 'ssf-step-label').text(t('smoothness', 'Smoothness'))
-    const choices = smoothnessChoices(surface)
-    if ((!smoothness && !isMixed(keys.smoothnessKey)) || _editSmoothness) {
-      step2Root.selectAll(':scope > .ssf-summary').remove()
-      renderSmoothnessChoices(step2Root, surface, choices, smoothness)
-    } else {
-      step2Root.selectAll(':scope > .ssf-cards, :scope > .ssf-levels').remove()
-      const choice = choices.find((c) => c.smoothness === smoothness)
-      renderSummary(step2Root, {
-        photo: choice?.cell?.photo,
-        emoji: smoothness
-          ? (catalogue.smoothnessLevels[smoothness]?.emoji ?? undefined)
-          : undefined,
-        title: smoothness ? smoothnessTitle(smoothness) : t('multiple_values', 'Multiple values'),
-        tag: smoothness ? `${keys.smoothnessKey}=${smoothness}` : '',
-        onClick: () => {
-          _editSmoothness = true
-          render()
-        },
-      })
+      .attr('class', (d: string) => `ssf-picker ssf-picker-${d}`)
+      .merge(picker as any)
+    if (_open === 'surface') renderSurfaceGrid(pickerRoot, surface)
+    if (_open === 'smoothness' && surface) {
+      renderSmoothnessChoices(pickerRoot, surface, smoothnessChoices(surface), smoothness)
     }
   }
 
-  function renderSummary(
+  /** One of the two tiles: photo (or emoji, or an empty placeholder), the label below. */
+  function renderValueTile(
     parent: Sel,
     d: {
+      id: 'surface' | 'smoothness'
       photo: string | undefined
       emoji: string | undefined
-      title: string
-      tag: string
-      onClick: () => void
+      title: string | undefined
+      placeholder: string
+      tag: string | undefined
     },
   ) {
-    const button = oneChild(parent, 'button', 'ssf-summary')
+    const button = oneChild(parent, 'button', `ssf-value ssf-value-${d.id}`)
       .attr('type', 'button')
+      .classed('empty', !d.title)
+      .classed('open', _open === d.id)
+      .attr('aria-expanded', String(_open === d.id))
       .attr(
         'title',
-        photoCredit(d.photo) ? `${t('photo', 'Photo')}: ${photoCredit(d.photo)}` : null,
+        [d.tag, photoCredit(d.photo) ? `${t('photo', 'Photo')}: ${photoCredit(d.photo)}` : '']
+          .filter(Boolean)
+          .join('\n') || null,
       )
       .on('click', (event: Event) => {
         event.preventDefault()
-        d.onClick()
+        toggle(d.id)
       })
     button.html('')
-    const visual = button.append('span').attr('class', 'ssf-summary-visual')
-    if (d.photo) {
-      visual.append('img').attr('src', assetUrl(d.photo)).attr('alt', '')
-    } else {
-      visual
-        .append('span')
-        .attr('class', 'ssf-summary-emoji')
-        .text(d.emoji ?? '')
-    }
-    const text = button.append('span').attr('class', 'ssf-summary-text')
-    text
+    const visual = button.append('span').attr('class', 'ssf-value-visual')
+    if (d.photo) visual.append('img').attr('src', assetUrl(d.photo)).attr('alt', '')
+    else if (d.emoji) visual.append('span').attr('class', 'ssf-value-emoji').text(d.emoji)
+    button
       .append('span')
-      .attr('class', 'ssf-summary-title')
-      .text(d.photo && d.emoji ? `${d.emoji} ${d.title}` : d.title)
-    text.append('span').attr('class', 'ssf-summary-tag').text(d.tag)
-    button.append('span').attr('class', 'ssf-summary-change').text(t('change', 'Change'))
+      .attr('class', 'ssf-value-title')
+      .text(d.title ? `${d.photo && d.emoji ? `${d.emoji} ` : ''}${d.title}` : d.placeholder)
   }
 
   function renderSurfaceGrid(parent: Sel, current: string | undefined) {
@@ -461,9 +452,8 @@ export function createSurfaceSmoothnessField(
     return instance
   }
   instance.entityIDs = () => {
-    // another feature: start again with the compact rows
-    _editSurface = false
-    _editSmoothness = false
+    // another feature: start again with the closed tiles
+    _open = undefined
     _allSurfaces = false
     return instance
   }
