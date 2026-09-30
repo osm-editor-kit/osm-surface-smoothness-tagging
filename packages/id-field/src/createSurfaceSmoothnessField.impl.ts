@@ -1,17 +1,23 @@
-import {
-  catalogue,
-  getSmoothnessOptionsForSurface,
-  getSurfaceInfo,
-} from '@osm-editor-kit/surface-smoothness-data'
+import { catalogue, getSurfaceInfo } from '@osm-editor-kit/surface-smoothness-data'
 import { dispatch as d3_dispatch } from 'd3-dispatch'
 import { select as d3_select, type Selection } from 'd3-selection'
-import { resolveKeys, smoothnessChangePatch, surfaceChangePatch } from './logic.js'
+import {
+  COMMON_SURFACES,
+  orderedSurfaces,
+  photoCredit,
+  resolveKeys,
+  smoothnessChangePatch,
+  smoothnessChoices,
+  surfaceChangePatch,
+  type SmoothnessChoice,
+} from './logic.js'
 import type {
   FieldTags,
   SurfaceSmoothnessAdapters,
   SurfaceSmoothnessContext,
   SurfaceSmoothnessFieldDefinition,
   SurfaceSmoothnessInstance,
+  SurfaceSmoothnessMode,
   TagPatch,
 } from './types.js'
 
@@ -21,9 +27,23 @@ type DispatchLike = {
   call: (type: string, that: unknown, ...args: unknown[]) => void
   on: (type: string, listener?: (...args: unknown[]) => void) => unknown
 }
-type SurfaceItem = (typeof catalogue.surfaces)[string]
-type SmoothnessOption = ReturnType<typeof getSmoothnessOptionsForSurface>[number]
+type Tile = { surface: string } | { more: true }
+type TextRow = {
+  name: 'surface' | 'smoothness'
+  key: string
+  label: string
+  values: string[]
+  title: (v: string) => string
+}
 
+/**
+ * Surface and smoothness in two steps, photos first:
+ * 1. Surface: a grid of photos (the usual surfaces, the rest behind "More"). Once chosen, one
+ *    compact row with the photo; clicking it opens the grid again.
+ * 2. Smoothness (after a surface): StreetComplete's reference photos for that surface, or every
+ *    level with its emoji where there are none. Once chosen, one compact row as well.
+ * The `text` mode shows plain inputs instead (any value, also one without a photo).
+ */
 export function createSurfaceSmoothnessField(
   field: SurfaceSmoothnessFieldDefinition = {},
   context: SurfaceSmoothnessContext = {},
@@ -36,15 +56,24 @@ export function createSurfaceSmoothnessField(
 
   let _tags: FieldTags = {}
   let _root: Sel = d3_select<any, unknown>(null as any)
+  let _mode: SurfaceSmoothnessMode = 'images'
+  /** The grid / cards are open although a value is set ("change" was clicked). */
+  let _editSurface = false
+  let _editSmoothness = false
+  let _allSurfaces = false
 
-  const surfaceValue = (): string | undefined => {
-    const v = _tags[keys.surfaceKey]
+  const value = (key: string): string | undefined => {
+    const v = _tags[key]
     return typeof v === 'string' && v ? v : undefined
   }
-  const smoothnessValue = (): string | undefined => {
-    const v = _tags[keys.smoothnessKey]
-    return typeof v === 'string' && v ? v : undefined
-  }
+  const isMixed = (key: string) => Array.isArray(_tags[key])
+
+  const surfaceTitle = (surface: string) =>
+    adapters.optionLabel?.('surface', surface) ?? getSurfaceInfo(surface)?.title ?? surface
+  const smoothnessTitle = (smoothness: string) =>
+    adapters.optionLabel?.('smoothness', smoothness) ??
+    catalogue.smoothnessLevels[smoothness]?.title ??
+    smoothness
 
   function emit(patch: TagPatch) {
     _tags = { ..._tags, ...patch }
@@ -52,182 +81,369 @@ export function createSurfaceSmoothnessField(
     dispatch.call('change', instance, patch)
   }
 
-  function chooseSurface(value: string | undefined) {
-    emit(surfaceChangePatch(smoothnessValue(), value, keys))
-  }
-  function chooseSmoothness(value: string) {
-    const next = smoothnessValue() === value ? undefined : value
-    emit(smoothnessChangePatch(next, keys))
-  }
-
-  // ---- skeleton + rendering ----------------------------------------------
-
-  function ensureSkeleton() {
-    if (!_root.select('.ssf-surface').empty()) return
-
-    const surface = _root.append('div').attr('class', 'ssf-section ssf-surface')
-    surface.append('label').attr('class', 'ssf-label').text(t('surface', 'Surface'))
-    const combo = surface.append('div').attr('class', 'ssf-combo')
-    combo
-      .append('input')
-      .attr('class', 'ssf-surface-input')
-      .attr('type', 'text')
-      .attr('autocomplete', 'off')
-      .attr('placeholder', t('surface_placeholder', 'e.g. asphalt'))
-      .on('focus', function (this: HTMLInputElement) {
-        openSurfaceList(this.value)
-      })
-      .on('input', function (this: HTMLInputElement) {
-        openSurfaceList(this.value)
-      })
-      .on('keydown', function (this: HTMLInputElement, event: KeyboardEvent) {
-        if (event.key === 'Enter') {
-          event.preventDefault()
-          chooseSurface(this.value.trim() || undefined)
-          closeSurfaceList()
-        } else if (event.key === 'Escape') {
-          closeSurfaceList()
-        }
-      })
-      .on('blur', () => window.setTimeout(closeSurfaceList, 150))
-    combo.append('ul').attr('class', 'ssf-combo-list').style('display', 'none')
-
-    const smoothness = _root.append('div').attr('class', 'ssf-section ssf-smoothness')
-    smoothness.append('label').attr('class', 'ssf-label').text(t('smoothness', 'Smoothness'))
-    smoothness.append('div').attr('class', 'ssf-grid')
-    smoothness.append('div').attr('class', 'ssf-hint')
+  function chooseSurface(surface: string | undefined) {
+    _editSurface = false
+    _allSurfaces = false
+    if (surface === value(keys.surfaceKey)) return render()
+    // the smoothness step comes next
+    _editSmoothness = false
+    emit(surfaceChangePatch(value(keys.smoothnessKey), surface, keys))
   }
 
-  function openSurfaceList(query: string) {
-    const q = query.trim().toLowerCase()
-    const items = Object.values(catalogue.surfaces).filter(
-      (s) =>
-        !q || s.osmValue.toLowerCase().includes(q) || (s.title ?? '').toLowerCase().includes(q),
-    )
-    const list = _root.select('.ssf-combo-list').style('display', items.length ? 'block' : 'none')
-    const li = list.selectAll('li').data(items, (d) => (d as SurfaceItem).osmValue)
-    li.exit().remove()
-    const enter = li
+  function chooseSmoothness(smoothness: string | undefined) {
+    _editSmoothness = false
+    emit(smoothnessChangePatch(smoothness, keys))
+  }
+
+  /** A direct child with this class, created once. */
+  function oneChild(parent: Sel, tag: string, className: string): Sel {
+    const selector = `.${className.split(' ').join('.')}`
+    const existing = parent.selectAll(`:scope > ${selector}`).data([0])
+    return existing
       .enter()
-      .append('li')
-      .attr('class', 'ssf-combo-item')
-      .on('mousedown', (event: Event, d) => {
-        event.preventDefault() // keep input focus until selection is applied
-        const picked = d as SurfaceItem
-        chooseSurface(picked.osmValue)
-        // The input keeps focus (preventDefault), so render()'s activeElement guard
-        // won't sync it — set the committed value explicitly so the box doesn't keep
-        // showing the user's typed prefix instead of the chosen surface.
-        _root.select('.ssf-surface-input').property('value', picked.osmValue)
-        closeSurfaceList()
-      })
-    const merged = enter.merge(li as any)
-    merged.classed('selected', (d) => (d as SurfaceItem).osmValue === surfaceValue())
-    merged.html('')
-    merged.each(function (this: HTMLLIElement, d) {
-      const s = d as SurfaceItem
-      const item = d3_select(this)
-      if (s.icon) {
-        item
-          .append('img')
-          .attr('class', 'ssf-combo-icon')
-          .attr('src', assetUrl(s.icon))
-          .attr('alt', '')
-      }
-      item
-        .append('span')
-        .attr('class', 'ssf-combo-title')
-        .text(s.title ?? s.osmValue)
-      item.append('span').attr('class', 'ssf-combo-code').text(s.osmValue)
-    })
+      .append(tag)
+      .attr('class', className)
+      .merge(existing as any)
   }
 
-  function closeSurfaceList() {
-    _root.select('.ssf-combo-list').style('display', 'none')
-  }
+  // ---- rendering --------------------------------------------------------------
 
   function render() {
     if (_root.empty() || !_root.node()) return
-    ensureSkeleton()
+    _root.attr('data-mode', _mode)
 
-    const surface = surfaceValue()
-    const input = _root.select('.ssf-surface-input')
-    if (!input.empty() && document.activeElement !== input.node()) {
-      input.property('value', surface ?? '')
-    }
-    renderSmoothness(surface)
+    const images = _root.selectAll(':scope > .ssf-images').data(_mode === 'images' ? [0] : [])
+    images.exit().remove()
+    const imagesRoot = images
+      .enter()
+      .append('div')
+      .attr('class', 'ssf-images')
+      .merge(images as any)
+
+    const text = _root.selectAll(':scope > .ssf-text').data(_mode === 'text' ? [0] : [])
+    text.exit().remove()
+    const textRoot = text
+      .enter()
+      .append('div')
+      .attr('class', 'ssf-text')
+      .merge(text as any)
+
+    if (_mode === 'images') renderImages(imagesRoot)
+    else renderText(textRoot)
   }
 
-  function renderSmoothness(surface: string | undefined) {
-    const grid = _root.select('.ssf-grid')
-    const hint = _root.select('.ssf-hint')
-    const info = surface ? getSurfaceInfo(surface) : undefined
-    const options = surface ? getSmoothnessOptionsForSurface(surface) : []
+  function renderImages(root: Sel) {
+    const surface = value(keys.surfaceKey)
+    const smoothness = value(keys.smoothnessKey)
 
-    if (!surface) {
-      grid.style('display', 'none').selectAll('*').remove()
-      hint
-        .style('display', 'block')
-        .text(t('pick_surface', 'Pick a surface to see smoothness options.'))
-      return
+    // step 1: surface
+    const step1 = oneChild(root, 'div', 'ssf-step ssf-step-surface')
+    if ((!surface && !isMixed(keys.surfaceKey)) || _editSurface) {
+      step1.selectAll(':scope > .ssf-summary').remove()
+      renderSurfaceGrid(step1, surface)
+    } else {
+      step1.selectAll(':scope > .ssf-tiles').remove()
+      renderSummary(step1, {
+        photo: surface ? (getSurfaceInfo(surface)?.icon ?? undefined) : undefined,
+        emoji: undefined,
+        title: surface ? surfaceTitle(surface) : t('multiple_values', 'Multiple values'),
+        tag: surface ? `${keys.surfaceKey}=${surface}` : '',
+        onClick: () => {
+          _editSurface = true
+          render()
+        },
+      })
     }
-    if (!options.length) {
-      grid.style('display', 'none').selectAll('*').remove()
-      const label = info?.title ?? surface
-      hint
-        .style('display', 'block')
-        .text(t('no_smoothness', `No smoothness reference photos for ${label}.`))
-      return
-    }
-    hint.style('display', 'none')
-    grid.style('display', 'grid')
 
-    // Key includes the surface: a card's photo is per (surface, smoothness), so a
-    // surface change re-creates the cards (fresh photos), while a smoothness toggle
-    // on the same surface reuses them and only flips `.selected` below — avoiding a
-    // full DOM rebuild + image refetch on every click.
-    const cards = grid
-      .selectAll('button.ssf-card')
-      .data(options, (d) => `${surface}/${(d as SmoothnessOption).smoothness}`)
-    cards.exit().remove()
-    const enter = cards
+    // step 2: smoothness, once there is a surface
+    const step2 = root.selectAll(':scope > .ssf-step-smoothness').data(surface ? [0] : [])
+    step2.exit().remove()
+    const step2Root = step2
+      .enter()
+      .append('div')
+      .attr('class', 'ssf-step ssf-step-smoothness')
+      .merge(step2 as any)
+    if (!surface) return
+
+    oneChild(step2Root, 'div', 'ssf-step-label').text(t('smoothness', 'Smoothness'))
+    const choices = smoothnessChoices(surface)
+    if ((!smoothness && !isMixed(keys.smoothnessKey)) || _editSmoothness) {
+      step2Root.selectAll(':scope > .ssf-summary').remove()
+      renderSmoothnessChoices(step2Root, surface, choices, smoothness)
+    } else {
+      step2Root.selectAll(':scope > .ssf-cards, :scope > .ssf-levels').remove()
+      const choice = choices.find((c) => c.smoothness === smoothness)
+      renderSummary(step2Root, {
+        photo: choice?.cell?.photo,
+        emoji: smoothness
+          ? (catalogue.smoothnessLevels[smoothness]?.emoji ?? undefined)
+          : undefined,
+        title: smoothness ? smoothnessTitle(smoothness) : t('multiple_values', 'Multiple values'),
+        tag: smoothness ? `${keys.smoothnessKey}=${smoothness}` : '',
+        onClick: () => {
+          _editSmoothness = true
+          render()
+        },
+      })
+    }
+  }
+
+  function renderSummary(
+    parent: Sel,
+    d: {
+      photo: string | undefined
+      emoji: string | undefined
+      title: string
+      tag: string
+      onClick: () => void
+    },
+  ) {
+    const button = oneChild(parent, 'button', 'ssf-summary')
+      .attr('type', 'button')
+      .attr(
+        'title',
+        photoCredit(d.photo) ? `${t('photo', 'Photo')}: ${photoCredit(d.photo)}` : null,
+      )
+      .on('click', (event: Event) => {
+        event.preventDefault()
+        d.onClick()
+      })
+    button.html('')
+    const visual = button.append('span').attr('class', 'ssf-summary-visual')
+    if (d.photo) {
+      visual.append('img').attr('src', assetUrl(d.photo)).attr('alt', '')
+    } else {
+      visual
+        .append('span')
+        .attr('class', 'ssf-summary-emoji')
+        .text(d.emoji ?? '')
+    }
+    const text = button.append('span').attr('class', 'ssf-summary-text')
+    text
+      .append('span')
+      .attr('class', 'ssf-summary-title')
+      .text(d.photo && d.emoji ? `${d.emoji} ${d.title}` : d.title)
+    text.append('span').attr('class', 'ssf-summary-tag').text(d.tag)
+    button.append('span').attr('class', 'ssf-summary-change').text(t('change', 'Change'))
+  }
+
+  function renderSurfaceGrid(parent: Sel, current: string | undefined) {
+    const all = orderedSurfaces()
+    // the current value stays visible, also when it is not a common surface
+    const shown = _allSurfaces
+      ? all
+      : all.filter((s) => COMMON_SURFACES.includes(s) || s === current)
+    const tiles: Tile[] = [...shown.map((surface) => ({ surface })), { more: true }]
+
+    const grid = oneChild(parent, 'div', 'ssf-tiles')
+    const tile = grid
+      .selectAll('button.ssf-tile')
+      .data(tiles, (d: any) => ('more' in d ? '_more' : d.surface))
+    tile.exit().remove()
+    const enter = tile
       .enter()
       .append('button')
       .attr('type', 'button')
-      .attr('class', 'ssf-card')
-      .on('click', (_event: Event, d) => chooseSmoothness((d as SmoothnessOption).smoothness))
-    enter.each(function (this: HTMLButtonElement, d) {
-      const o = d as SmoothnessOption
-      const card = d3_select(this)
-      card
-        .append('img')
-        .attr('class', 'ssf-card-photo')
-        .attr('loading', 'lazy')
-        .attr('src', assetUrl(o.cell.photo))
-        .attr('alt', '')
-      const head = card.append('div').attr('class', 'ssf-card-head')
+      .attr('class', (d: Tile) => ('more' in d ? 'ssf-tile ssf-tile-more' : 'ssf-tile'))
+    enter.each(function (this: HTMLButtonElement, d: Tile) {
+      const button = d3_select(this)
+      const visual = button.append('span').attr('class', 'ssf-tile-visual')
+      button.append('span').attr('class', 'ssf-tile-title')
+      if ('more' in d) return
+      const icon = getSurfaceInfo(d.surface)?.icon
+      if (icon)
+        visual.append('img').attr('loading', 'lazy').attr('src', assetUrl(icon)).attr('alt', '')
+    })
+    const merged = enter
+      .merge(tile as any)
+      .order()
+      .classed('selected', (d: Tile) => 'surface' in d && d.surface === current)
+      .attr('aria-pressed', (d: Tile) => ('surface' in d ? String(d.surface === current) : null))
+      .attr('title', (d: Tile) => {
+        if ('more' in d) return null
+        const credit = photoCredit(getSurfaceInfo(d.surface)?.icon)
+        return `${keys.surfaceKey}=${d.surface}${credit ? `\n${t('photo', 'Photo')}: ${credit}` : ''}`
+      })
+      .on('click', (event: Event, d: Tile) => {
+        event.preventDefault()
+        if ('more' in d) {
+          _allSurfaces = !_allSurfaces
+          render()
+        } else {
+          chooseSurface(d.surface)
+        }
+      })
+    merged
+      .select('.ssf-tile-title')
+      .text((d: Tile) =>
+        'more' in d
+          ? _allSurfaces
+            ? t('fewer', 'Fewer')
+            : t('more', 'More')
+          : surfaceTitle(d.surface),
+      )
+    merged
+      .filter((d: Tile) => 'more' in d)
+      .select('.ssf-tile-visual')
+      .text(_allSurfaces ? '−' : `+${all.length - shown.length}`)
+  }
+
+  function renderSmoothnessChoices(
+    parent: Sel,
+    surface: string,
+    choices: SmoothnessChoice[],
+    current: string | undefined,
+  ) {
+    const withPhotos = choices.some((c) => c.cell)
+    parent.selectAll(withPhotos ? ':scope > .ssf-levels' : ':scope > .ssf-cards').remove()
+    const list = oneChild(parent, 'div', withPhotos ? 'ssf-cards' : 'ssf-levels')
+
+    // keyed by surface: a new surface brings new photos
+    const card = list
+      .selectAll('button.ssf-card')
+      .data(choices, (d: any) => `${surface}/${(d as SmoothnessChoice).smoothness}`)
+    card.exit().remove()
+    const enter = card.enter().append('button').attr('type', 'button').attr('class', 'ssf-card')
+    enter.each(function (this: HTMLButtonElement, d: SmoothnessChoice) {
+      const button = d3_select(this)
+      if (d.cell) {
+        button
+          .append('img')
+          .attr('class', 'ssf-card-photo')
+          .attr('loading', 'lazy')
+          .attr('src', assetUrl(d.cell.photo))
+          .attr('alt', '')
+      }
+      const head = button.append('span').attr('class', 'ssf-card-head')
       head
         .append('span')
         .attr('class', 'ssf-card-emoji')
-        .text(o.level?.emoji ?? '')
-      head
-        .append('span')
-        .attr('class', 'ssf-card-title')
-        .text(o.level?.title ?? o.smoothness)
-      card.append('div').attr('class', 'ssf-card-value').text(o.smoothness)
-      if (o.cell.description) {
-        card.append('div').attr('class', 'ssf-card-desc').text(o.cell.description)
-      }
+        .text(d.level?.emoji ?? '')
+      head.append('span').attr('class', 'ssf-card-title').text(smoothnessTitle(d.smoothness))
     })
     enter
-      .merge(cards as any)
-      .classed('selected', (d) => (d as SmoothnessOption).smoothness === smoothnessValue())
-      .attr('aria-pressed', (d) =>
-        (d as SmoothnessOption).smoothness === smoothnessValue() ? 'true' : 'false',
-      )
+      .merge(card as any)
+      .order()
+      .classed('selected', (d: SmoothnessChoice) => d.smoothness === current)
+      .attr('aria-pressed', (d: SmoothnessChoice) => String(d.smoothness === current))
+      .attr('title', (d: SmoothnessChoice) => {
+        const lines = [`${keys.smoothnessKey}=${d.smoothness}`]
+        if (d.cell?.description) lines.push(d.cell.description)
+        const credit = photoCredit(d.cell?.photo)
+        if (credit) lines.push(`${t('photo', 'Photo')}: ${credit}`)
+        return lines.join('\n')
+      })
+      .on('click', (event: Event, d: SmoothnessChoice) => {
+        event.preventDefault()
+        // choosing the current value again removes it
+        chooseSmoothness(d.smoothness === current ? undefined : d.smoothness)
+      })
   }
 
-  // ---- instance (iD field interface) -------------------------------------
+  // ---- text mode ----------------------------------------------------------------
+
+  /** Two rows like iD's directional fields: a label cell, and an input with a suggestion list. */
+  function renderText(root: Sel) {
+    const rows = oneChild(root, 'ul', 'rows rows-table ssf-text-rows')
+    const data: TextRow[] = [
+      {
+        name: 'surface',
+        key: keys.surfaceKey,
+        label: t('surface', 'Surface'),
+        values: orderedSurfaces(),
+        title: surfaceTitle,
+      },
+      {
+        name: 'smoothness',
+        key: keys.smoothnessKey,
+        label: t('smoothness', 'Smoothness'),
+        values: Object.keys(catalogue.smoothnessLevels),
+        title: smoothnessTitle,
+      },
+    ]
+    const row = rows.selectAll(':scope > li').data(data, (d: any) => d.key)
+    const enter = row.enter().append('li').attr('class', 'labeled-input')
+    enter.append('div').attr('class', 'label')
+    const cell = enter.append('div').attr('class', 'ssf-text-cell')
+    cell
+      .append('input')
+      .attr('type', 'text')
+      .attr('autocomplete', 'off')
+      .attr('class', 'ssf-text-input')
+    cell.append('ul').attr('class', 'ssf-combo-list').style('display', 'none')
+
+    const merged = enter.merge(row as any)
+    merged.select('.label').text((d: TextRow) => d.label)
+    const inputs = merged.select('input') as Selection<HTMLInputElement, TextRow, any, any>
+    inputs.each((d: TextRow, i: number, nodes: ArrayLike<HTMLInputElement>) => {
+      const input = nodes[i]
+      if (!input) return
+      const current = _tags[d.key]
+      if (document.activeElement !== input) {
+        input.value = typeof current === 'string' ? d.title(current) : ''
+      }
+      input.placeholder = Array.isArray(current)
+        ? t('multiple_values', 'Multiple values')
+        : t(`${d.name}_placeholder`, `${d.title(d.values[0] ?? '')}…`)
+
+      const list = d3_select(input.parentNode as HTMLElement).select('.ssf-combo-list')
+      const choose = (next: string | undefined) => {
+        if (next === (typeof _tags[d.key] === 'string' ? _tags[d.key] : undefined)) return
+        if (d.key === keys.surfaceKey) chooseSurface(next)
+        else chooseSmoothness(next)
+      }
+      const commit = () => {
+        const typed = input.value.trim()
+        // a known title stands for its value, anything else is a raw tag value
+        const known = d.values.find(
+          (v) => v === typed || d.title(v).toLowerCase() === typed.toLowerCase(),
+        )
+        choose(typed ? (known ?? typed) : undefined)
+      }
+      d3_select(input)
+        .on('focus input', () => openList(list, d, input.value))
+        .on('keydown', (event: KeyboardEvent) => {
+          if (event.key === 'Enter') {
+            event.preventDefault()
+            input.blur()
+          } else if (event.key === 'Escape') {
+            list.style('display', 'none')
+          }
+        })
+        .on('blur', () => {
+          list.style('display', 'none')
+          commit()
+        })
+      list.on('mousedown', (event: Event) => {
+        const item = (event.target as HTMLElement).closest('li') as
+          | (HTMLElement & { __data__?: string })
+          | null
+        if (!item?.__data__) return
+        event.preventDefault()
+        input.value = d.title(item.__data__)
+        list.style('display', 'none')
+        choose(item.__data__)
+      })
+    })
+  }
+
+  function openList(list: Sel, d: TextRow, query: string) {
+    const q = query.trim().toLowerCase()
+    const items = d.values.filter(
+      (v) => !q || v.toLowerCase().includes(q) || d.title(v).toLowerCase().includes(q),
+    )
+    list.style('display', items.length ? 'block' : 'none')
+    const li = list.selectAll('li').data(items, (v: any) => v)
+    li.exit().remove()
+    const enter = li.enter().append('li').attr('class', 'ssf-combo-item')
+    enter.append('span').attr('class', 'ssf-combo-title')
+    enter.append('span').attr('class', 'ssf-combo-code')
+    const merged = enter.merge(li as any).order()
+    merged.select('.ssf-combo-title').text((v: string) => d.title(v))
+    merged.select('.ssf-combo-code').text((v: string) => v)
+  }
+
+  // ---- instance (iD field interface) --------------------------------------------
 
   const instance = ((selection: Sel) => {
     const sel = selection.selectAll('.surface-smoothness-field').data([0])
@@ -244,12 +460,24 @@ export function createSurfaceSmoothnessField(
     render()
     return instance
   }
-  instance.entityIDs = () => instance
+  instance.entityIDs = () => {
+    // another feature: start again with the compact rows
+    _editSurface = false
+    _editSmoothness = false
+    _allSurfaces = false
+    return instance
+  }
   instance.focus = () => {
-    const node = _root.select('.ssf-surface-input').node() as HTMLInputElement | null
+    const node = _root.select('button, input').node() as HTMLElement | null
     node?.focus()
     return instance
   }
+  instance.mode = ((mode?: SurfaceSmoothnessMode) => {
+    if (mode === undefined) return _mode
+    _mode = mode
+    render()
+    return instance
+  }) as SurfaceSmoothnessInstance['mode']
   instance.on = (type: string, listener?: (...args: unknown[]) => void) => {
     dispatch.on(type, listener)
     return instance

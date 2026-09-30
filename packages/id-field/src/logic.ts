@@ -1,6 +1,11 @@
 // Pure tag logic — no DOM, unit-tested independently of the D3 widget.
 
-import { getSmoothnessOptionsForSurface } from '@osm-editor-kit/surface-smoothness-data'
+import {
+  catalogue,
+  getSmoothnessOptionsForSurface,
+  type MatrixCell,
+  type SmoothnessLevel,
+} from '@osm-editor-kit/surface-smoothness-data'
 import type { SurfaceSmoothnessFieldDefinition, TagPatch } from './types.js'
 
 export interface FieldKeys {
@@ -49,4 +54,58 @@ export function smoothnessChangePatch(
   keys: FieldKeys = DEFAULT_KEYS,
 ): TagPatch {
   return { [keys.smoothnessKey]: nextSmoothness || undefined }
+}
+
+/**
+ * Surfaces shown first in the photo grid: the usual ones on roads and cycleways.
+ * The others follow behind "More".
+ */
+export const COMMON_SURFACES = [
+  'asphalt',
+  'paving_stones',
+  'concrete',
+  'sett',
+  'unhewn_cobblestone',
+  'compacted',
+  'fine_gravel',
+  'grass_paver',
+]
+
+/** All catalogue surfaces: the common ones first, then the rest in catalogue order. */
+export function orderedSurfaces(): string[] {
+  const all = Object.keys(catalogue.surfaces)
+  return [
+    ...COMMON_SURFACES.filter((value) => all.includes(value)),
+    ...all.filter((value) => !COMMON_SURFACES.includes(value)),
+  ]
+}
+
+export interface SmoothnessChoice {
+  smoothness: string
+  level: SmoothnessLevel | undefined
+  /** Reference photo for this surface, when StreetComplete has one. */
+  cell: MatrixCell | undefined
+}
+
+/**
+ * Smoothness values to offer for a surface, best to worst: with reference photos where
+ * StreetComplete has them for this surface, otherwise every level without a photo.
+ */
+export function smoothnessChoices(surface: string | undefined): SmoothnessChoice[] {
+  const withPhotos = surface ? getSmoothnessOptionsForSurface(surface) : []
+  if (withPhotos.length) {
+    return withPhotos.map((o) => ({ smoothness: o.smoothness, level: o.level, cell: o.cell }))
+  }
+  return Object.values(catalogue.smoothnessLevels).map((level) => ({
+    smoothness: level.osmValue,
+    level,
+    cell: undefined,
+  }))
+}
+
+/** "source (license)" of a catalogue image, for its tooltip. */
+export function photoCredit(path: string | null | undefined): string | undefined {
+  if (!path) return undefined
+  const entry = catalogue.attribution.find((a) => a.file === path)
+  return entry ? `${entry.source} (${entry.license})` : undefined
 }
