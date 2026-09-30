@@ -91,6 +91,10 @@
 .ssf-picker {
   margin-top: 3px;
 }
+/* the same choice as a dropdown, below the photos */
+.ssf-picker-dropdown {
+  margin-top: 3px;
+}
 
 /* ---- step 1: surface photos ---- */
 

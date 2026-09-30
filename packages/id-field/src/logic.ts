@@ -57,8 +57,8 @@ export function smoothnessChangePatch(
 }
 
 /**
- * Surfaces shown first in the photo grid: the usual ones on roads and cycleways.
- * The others follow behind "More".
+ * Surfaces shown first in the photo grid (three rows of four): the usual ones on roads, cycleways
+ * and paths. The others (rare or unspecific, like `paved`, `wood`, `rubber`) follow behind "More".
  */
 export const COMMON_SURFACES = [
   'asphalt',
@@ -66,9 +66,13 @@ export const COMMON_SURFACES = [
   'concrete',
   'sett',
   'unhewn_cobblestone',
+  'concrete:lanes',
   'compacted',
   'fine_gravel',
+  'gravel',
   'grass_paver',
+  'ground',
+  'dirt',
 ]
 
 /** All catalogue surfaces: the common ones first, then the rest in catalogue order. */

@@ -179,6 +179,7 @@ export function createSurfaceSmoothnessField(
     if (_open === 'smoothness' && surface) {
       renderSmoothnessChoices(pickerRoot, surface, smoothnessChoices(surface), smoothness)
     }
+    if (_open) renderPickerDropdown(pickerRoot, _open)
   }
 
   /** One of the two tiles: photo (or emoji, or an empty placeholder), the label below. */
@@ -331,90 +332,112 @@ export function createSurfaceSmoothnessField(
       })
   }
 
-  // ---- text mode ----------------------------------------------------------------
+  // ---- dropdowns: text mode, and below an open picker ----------------------------
 
-  /** Two rows like iD's directional fields: a label cell, and an input with a suggestion list. */
+  /** Values for a dropdown: the catalogue's (in grid order), then the host's other options. */
+  function dropdownValues(name: 'surface' | 'smoothness'): string[] {
+    const own = name === 'surface' ? orderedSurfaces() : Object.keys(catalogue.smoothnessLevels)
+    const host = adapters.options?.(name) ?? []
+    return [...own, ...host.filter((v) => !own.includes(v))]
+  }
+
+  function textRow(name: 'surface' | 'smoothness'): TextRow {
+    return name === 'surface'
+      ? {
+          name,
+          key: keys.surfaceKey,
+          label: t('surface', 'Surface'),
+          values: dropdownValues('surface'),
+          title: surfaceTitle,
+        }
+      : {
+          name,
+          key: keys.smoothnessKey,
+          label: t('smoothness', 'Smoothness'),
+          values: dropdownValues('smoothness'),
+          title: smoothnessTitle,
+        }
+  }
+
+  /** Two rows like iD's directional fields: a label cell, and a dropdown input. */
   function renderText(root: Sel) {
     const rows = oneChild(root, 'ul', 'rows rows-table ssf-text-rows')
-    const data: TextRow[] = [
-      {
-        name: 'surface',
-        key: keys.surfaceKey,
-        label: t('surface', 'Surface'),
-        values: orderedSurfaces(),
-        title: surfaceTitle,
-      },
-      {
-        name: 'smoothness',
-        key: keys.smoothnessKey,
-        label: t('smoothness', 'Smoothness'),
-        values: Object.keys(catalogue.smoothnessLevels),
-        title: smoothnessTitle,
-      },
-    ]
-    const row = rows.selectAll(':scope > li').data(data, (d: any) => d.key)
+    const row = rows
+      .selectAll(':scope > li')
+      .data([textRow('surface'), textRow('smoothness')], (d: any) => d.key)
     const enter = row.enter().append('li').attr('class', 'labeled-input')
     enter.append('div').attr('class', 'label')
-    const cell = enter.append('div').attr('class', 'ssf-text-cell')
-    cell
-      .append('input')
-      .attr('type', 'text')
-      .attr('autocomplete', 'off')
-      .attr('class', 'ssf-text-input')
-    cell.append('ul').attr('class', 'ssf-combo-list').style('display', 'none')
-
+    enter.append('div').attr('class', 'ssf-text-cell')
     const merged = enter.merge(row as any)
     merged.select('.label').text((d: TextRow) => d.label)
-    const inputs = merged.select('input') as Selection<HTMLInputElement, TextRow, any, any>
-    inputs.each((d: TextRow, i: number, nodes: ArrayLike<HTMLInputElement>) => {
-      const input = nodes[i]
-      if (!input) return
-      const current = _tags[d.key]
-      if (document.activeElement !== input) {
-        input.value = typeof current === 'string' ? d.title(current) : ''
-      }
-      input.placeholder = Array.isArray(current)
-        ? t('multiple_values', 'Multiple values')
-        : t(`${d.name}_placeholder`, `${d.title(d.values[0] ?? '')}…`)
+    const cells = merged.select('.ssf-text-cell') as Selection<HTMLElement, TextRow, any, any>
+    cells.each((d: TextRow, i: number, nodes: ArrayLike<HTMLElement>) => {
+      const node = nodes[i]
+      if (node) renderDropdown(d3_select(node), d)
+    })
+  }
 
-      const list = d3_select(input.parentNode as HTMLElement).select('.ssf-combo-list')
-      const choose = (next: string | undefined) => {
-        if (next === (typeof _tags[d.key] === 'string' ? _tags[d.key] : undefined)) return
-        if (d.key === keys.surfaceKey) chooseSurface(next)
-        else chooseSmoothness(next)
-      }
-      const commit = () => {
-        const typed = input.value.trim()
-        // a known title stands for its value, anything else is a raw tag value
-        const known = d.values.find(
-          (v) => v === typed || d.title(v).toLowerCase() === typed.toLowerCase(),
-        )
-        choose(typed ? (known ?? typed) : undefined)
-      }
-      d3_select(input)
-        .on('focus input', () => openList(list, d, input.value))
-        .on('keydown', (event: KeyboardEvent) => {
-          if (event.key === 'Enter') {
-            event.preventDefault()
-            input.blur()
-          } else if (event.key === 'Escape') {
-            list.style('display', 'none')
-          }
-        })
-        .on('blur', () => {
+  /** Below an open picker: the same choice as a dropdown (any value, also one without a photo). */
+  function renderPickerDropdown(picker: Sel, name: 'surface' | 'smoothness') {
+    const cell = oneChild(picker, 'div', 'ssf-picker-dropdown ssf-text-cell')
+    renderDropdown(cell, textRow(name))
+  }
+
+  /** An input with a suggestion list in `cell`; choosing works like clicking a photo. */
+  function renderDropdown(cell: Sel, d: TextRow) {
+    const inputSel = oneChild(cell, 'input', 'ssf-text-input')
+      .attr('type', 'text')
+      .attr('autocomplete', 'off')
+    const list = oneChild(cell, 'ul', 'ssf-combo-list')
+    const input = inputSel.node() as HTMLInputElement | null
+    if (!input) return
+
+    const current = _tags[d.key]
+    if (document.activeElement !== input) {
+      input.value = typeof current === 'string' ? d.title(current) : ''
+      list.style('display', 'none')
+    }
+    input.placeholder = Array.isArray(current)
+      ? t('multiple_values', 'Multiple values')
+      : t(`${d.name}_placeholder`, `${d.title(d.values[0] ?? '')}…`)
+
+    const choose = (next: string | undefined) => {
+      if (next === (typeof _tags[d.key] === 'string' ? _tags[d.key] : undefined)) return
+      if (d.key === keys.surfaceKey) chooseSurface(next)
+      else chooseSmoothness(next)
+    }
+    const commit = () => {
+      const typed = input.value.trim()
+      // a known title stands for its value, anything else is a raw tag value
+      const known = d.values.find(
+        (v) => v === typed || d.title(v).toLowerCase() === typed.toLowerCase(),
+      )
+      choose(typed ? (known ?? typed) : undefined)
+    }
+    inputSel
+      .on('focus input', () => openList(list, d, input.value))
+      .on('keydown', (event: KeyboardEvent) => {
+        if (event.key === 'Enter') {
+          event.preventDefault()
+          input.blur()
+        } else if (event.key === 'Escape') {
           list.style('display', 'none')
-          commit()
-        })
-      list.on('mousedown', (event: Event) => {
-        const item = (event.target as HTMLElement).closest('li') as
-          | (HTMLElement & { __data__?: string })
-          | null
-        if (!item?.__data__) return
-        event.preventDefault()
-        input.value = d.title(item.__data__)
-        list.style('display', 'none')
-        choose(item.__data__)
+        }
       })
+      .on('blur', () => {
+        list.style('display', 'none')
+        commit()
+      })
+    list.on('mousedown', (event: Event) => {
+      const item = (event.target as HTMLElement).closest('li') as
+        | (HTMLElement & { __data__?: string })
+        | null
+      if (!item?.__data__) return
+      event.preventDefault()
+      input.value = d.title(item.__data__)
+      list.style('display', 'none')
+      input.blur()
+      choose(item.__data__)
     })
   }
 

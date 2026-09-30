@@ -22,6 +22,11 @@ export interface SurfaceSmoothnessAdapters {
    * to use the catalogue's English title.
    */
   optionLabel?: (key: 'surface' | 'smoothness', value: string) => string | undefined
+  /**
+   * More values for the dropdowns, e.g. the host's tagging schema options. They follow the
+   * catalogue's values; any typed value is accepted as well.
+   */
+  options?: (key: 'surface' | 'smoothness') => string[] | undefined
 }
 
 /** `images`: photo grid first (default). `text`: plain inputs, for values without a photo. */
