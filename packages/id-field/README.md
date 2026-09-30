@@ -3,9 +3,10 @@
 D3 inspector field for the [iD editor](https://github.com/openstreetmap/iD): pick
 `surface` and a matching `smoothness` with StreetComplete-style reference photos.
 
-- Choose a surface → smoothness options are filtered to that surface’s matrix.
-- Each smoothness option shows a "usable by" vehicle emoji, a reference photo, and a short description.
-- Emits tag patches for `surface` / `smoothness`; clears `smoothness` when it is no longer valid for the selected surface.
+- Two tiles side by side: the surface and its smoothness, each with its photo and label (an empty frame while not set). The tags are in the tooltip.
+- Clicking a tile opens its picker below: all surface photos first; choosing a surface opens the smoothness photos for that surface (or every level with its "usable by" emoji where StreetComplete has no photos).
+- Below the photos, a label | input row takes any value, also one without a photo. A host can render its own input there (`adapters.renderInput`, e.g. iD's combo field with its translated dropdown); otherwise the field draws a simple dropdown.
+- Emits tag patches for `surface` / `smoothness`; clears `smoothness` when it is no longer valid for the selected surface. Choosing the current value again removes it.
 - **ESM-only** (`type: module`). Import the CSS side effect separately.
 
 Live demo: [osm-editor-kit.github.io/osm-surface-smoothness-tagging](https://osm-editor-kit.github.io/osm-surface-smoothness-tagging/)
@@ -56,7 +57,7 @@ field.tags({ surface: 'asphalt' })
 | `field(selection)`             | Mount / update into a d3 selection (call as `selection.call(field)`). |
 | `field.tags(tags)`             | Push current OSM tags into the widget.                                |
 | `field.entityIDs(ids)`         | Optional entity ids (iD multi-edit context).                          |
-| `field.focus()`                | Focus the surface input.                                              |
+| `field.focus()`                | Focus the first tile.                                                 |
 | `field.on('change', listener)` | Subscribe to tag patches (`TagPatch`).                                |
 
 ### Factory options
@@ -67,7 +68,10 @@ createSurfaceSmoothnessField(field?, context?, adapters?)
 
 - **`field`** — `surfaceKey` / `smoothnessKey` (defaults `"surface"` / `"smoothness"`), optional `safeid`.
 - **`context.assetUrl(path)`** — resolve catalogue asset paths to browser URLs. Required for photos to show.
-- **`adapters.t(key, fallback)`** — translate UI labels.
+- **`adapters.t(key, fallback)`** — translate UI labels (`surface`, `smoothness`, `surface_placeholder`, `smoothness_placeholder`, `photo`, `multiple_values`).
+- **`adapters.optionLabel(key, value)`** — label of a tag value, e.g. from the host's translated tagging schema; `undefined` falls back to the catalogue's English title.
+- **`adapters.options(key)`** — more values for the fallback dropdown (e.g. the schema's options); they follow the catalogue's values.
+- **`adapters.renderInput(cell, key, value, choose)`** — render the host's own input into the row below the photos; called on every render, call `choose(value)` with a new value.
 
 ### Helpers
 
@@ -78,6 +82,9 @@ Also exported for hosts that need the same tag rules without the UI:
 - `isSmoothnessValidForSurface(surface, smoothness)`
 - `surfaceChangePatch(currentSmoothness, nextSurface, keys?)`
 - `smoothnessChangePatch(nextSmoothness, keys?)`
+- `orderedSurfaces()` — all catalogue surfaces, the common ones (`COMMON_SURFACES`) first
+- `smoothnessChoices(surface)` — smoothness values to offer, with photos where there are some
+- `photoCredit(path)` — source and license of a catalogue photo
 
 ## Using with iD
 

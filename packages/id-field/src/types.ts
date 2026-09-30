@@ -27,6 +27,17 @@ export interface SurfaceSmoothnessAdapters {
    * catalogue's values; any typed value is accepted as well.
    */
   options?: (key: 'surface' | 'smoothness') => string[] | undefined
+  /**
+   * The host's own input for the row below the photos (e.g. iD's combo field with its translated
+   * dropdown). Called on every render with the row's input cell and the current value; call
+   * `choose` with a new value. Without it, the field draws its own simple dropdown.
+   */
+  renderInput?: (
+    cell: HTMLElement,
+    key: 'surface' | 'smoothness',
+    value: string | string[] | undefined,
+    choose: (value: string | undefined) => void,
+  ) => void
 }
 
 export type FieldTags = Record<string, string | string[] | undefined>

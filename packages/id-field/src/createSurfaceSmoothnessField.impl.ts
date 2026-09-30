@@ -310,7 +310,17 @@ export function createSurfaceSmoothnessField(
     const rows = oneChild(picker, 'ul', 'rows rows-table ssf-picker-row')
     const row = oneChild(rows, 'li', 'labeled-input')
     oneChild(row, 'div', 'label').text(d.label)
-    renderDropdown(oneChild(row, 'div', 'ssf-text-cell'), d)
+    const cell = oneChild(row, 'div', 'ssf-text-cell')
+    const node = cell.node() as HTMLElement | null
+    if (adapters.renderInput && node) {
+      adapters.renderInput(node, name, _tags[d.key], (next) => {
+        if (next === value(d.key)) return
+        if (name === 'surface') chooseSurface(next)
+        else chooseSmoothness(next)
+      })
+    } else {
+      renderDropdown(cell, d)
+    }
   }
 
   /** An input with a suggestion list in `cell`; choosing works like clicking a photo. */
