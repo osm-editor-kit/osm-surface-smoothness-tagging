@@ -2,7 +2,6 @@ import { catalogue, getSurfaceInfo } from '@osm-editor-kit/surface-smoothness-da
 import { dispatch as d3_dispatch } from 'd3-dispatch'
 import { select as d3_select, type Selection } from 'd3-selection'
 import {
-  COMMON_SURFACES,
   orderedSurfaces,
   photoCredit,
   resolveKeys,
@@ -17,7 +16,6 @@ import type {
   SurfaceSmoothnessContext,
   SurfaceSmoothnessFieldDefinition,
   SurfaceSmoothnessInstance,
-  SurfaceSmoothnessMode,
   TagPatch,
 } from './types.js'
 
@@ -27,7 +25,6 @@ type DispatchLike = {
   call: (type: string, that: unknown, ...args: unknown[]) => void
   on: (type: string, listener?: (...args: unknown[]) => void) => unknown
 }
-type Tile = { surface: string } | { more: true }
 type TextRow = {
   name: 'surface' | 'smoothness'
   key: string
@@ -39,9 +36,9 @@ type TextRow = {
 /**
  * Surface and smoothness, photos first: two tiles side by side (the surface, its smoothness),
  * each with its photo and label, or an empty frame while not set. Clicking a tile opens its
- * picker below: the surface first (the usual surfaces, the rest behind "More"), and after a
- * surface the smoothness photos for it (or every level with its emoji where there are none).
- * The `text` mode shows plain inputs instead (any value, also one without a photo).
+ * picker below: the surface first (all surface photos), and after a surface the smoothness
+ * photos for it (or every level with its emoji where there are none). Below the photos, a
+ * label | input row takes any value, also one without a photo.
  */
 export function createSurfaceSmoothnessField(
   field: SurfaceSmoothnessFieldDefinition = {},
@@ -55,10 +52,8 @@ export function createSurfaceSmoothnessField(
 
   let _tags: FieldTags = {}
   let _root: Sel = d3_select<any, unknown>(null as any)
-  let _mode: SurfaceSmoothnessMode = 'images'
   /** The picker open below the two tiles, if any. */
   let _open: 'surface' | 'smoothness' | undefined
-  let _allSurfaces = false
 
   const value = (key: string): string | undefined => {
     const v = _tags[key]
@@ -80,7 +75,6 @@ export function createSurfaceSmoothnessField(
   }
 
   function chooseSurface(surface: string | undefined) {
-    _allSurfaces = false
     // the smoothness for this surface comes next
     _open = surface ? 'smoothness' : undefined
     if (surface === value(keys.surfaceKey)) return render()
@@ -97,7 +91,6 @@ export function createSurfaceSmoothnessField(
     const needsSurface = picker === 'smoothness' && !value(keys.surfaceKey)
     const next = needsSurface ? 'surface' : picker
     _open = _open === next ? undefined : next
-    _allSurfaces = false
     render()
   }
 
@@ -116,26 +109,7 @@ export function createSurfaceSmoothnessField(
 
   function render() {
     if (_root.empty() || !_root.node()) return
-    _root.attr('data-mode', _mode)
-
-    const images = _root.selectAll(':scope > .ssf-images').data(_mode === 'images' ? [0] : [])
-    images.exit().remove()
-    const imagesRoot = images
-      .enter()
-      .append('div')
-      .attr('class', 'ssf-images')
-      .merge(images as any)
-
-    const text = _root.selectAll(':scope > .ssf-text').data(_mode === 'text' ? [0] : [])
-    text.exit().remove()
-    const textRoot = text
-      .enter()
-      .append('div')
-      .attr('class', 'ssf-text')
-      .merge(text as any)
-
-    if (_mode === 'images') renderImages(imagesRoot)
-    else renderText(textRoot)
+    renderImages(_root)
   }
 
   function renderImages(root: Sel) {
@@ -179,7 +153,7 @@ export function createSurfaceSmoothnessField(
     if (_open === 'smoothness' && surface) {
       renderSmoothnessChoices(pickerRoot, surface, smoothnessChoices(surface), smoothness)
     }
-    if (_open) renderPickerDropdown(pickerRoot, _open)
+    if (_open) renderPickerRow(pickerRoot, _open)
   }
 
   /** One of the two tiles: photo (or emoji, or an empty placeholder), the label below. */
@@ -220,64 +194,32 @@ export function createSurfaceSmoothnessField(
   }
 
   function renderSurfaceGrid(parent: Sel, current: string | undefined) {
-    const all = orderedSurfaces()
-    // the current value stays visible, also when it is not a common surface
-    const shown = _allSurfaces
-      ? all
-      : all.filter((s) => COMMON_SURFACES.includes(s) || s === current)
-    const tiles: Tile[] = [...shown.map((surface) => ({ surface })), { more: true }]
-
     const grid = oneChild(parent, 'div', 'ssf-tiles')
-    const tile = grid
-      .selectAll('button.ssf-tile')
-      .data(tiles, (d: any) => ('more' in d ? '_more' : d.surface))
+    const tile = grid.selectAll('button.ssf-tile').data(orderedSurfaces(), (d: any) => d)
     tile.exit().remove()
-    const enter = tile
-      .enter()
-      .append('button')
-      .attr('type', 'button')
-      .attr('class', (d: Tile) => ('more' in d ? 'ssf-tile ssf-tile-more' : 'ssf-tile'))
-    enter.each(function (this: HTMLButtonElement, d: Tile) {
+    const enter = tile.enter().append('button').attr('type', 'button').attr('class', 'ssf-tile')
+    enter.each(function (this: HTMLButtonElement, surface: string) {
       const button = d3_select(this)
       const visual = button.append('span').attr('class', 'ssf-tile-visual')
-      button.append('span').attr('class', 'ssf-tile-title')
-      if ('more' in d) return
-      const icon = getSurfaceInfo(d.surface)?.icon
-      if (icon)
+      const icon = getSurfaceInfo(surface)?.icon
+      if (icon) {
         visual.append('img').attr('loading', 'lazy').attr('src', assetUrl(icon)).attr('alt', '')
+      }
+      button.append('span').attr('class', 'ssf-tile-title').text(surfaceTitle(surface))
     })
-    const merged = enter
+    enter
       .merge(tile as any)
       .order()
-      .classed('selected', (d: Tile) => 'surface' in d && d.surface === current)
-      .attr('aria-pressed', (d: Tile) => ('surface' in d ? String(d.surface === current) : null))
-      .attr('title', (d: Tile) => {
-        if ('more' in d) return null
-        const credit = photoCredit(getSurfaceInfo(d.surface)?.icon)
-        return `${keys.surfaceKey}=${d.surface}${credit ? `\n${t('photo', 'Photo')}: ${credit}` : ''}`
+      .classed('selected', (surface: string) => surface === current)
+      .attr('aria-pressed', (surface: string) => String(surface === current))
+      .attr('title', (surface: string) => {
+        const credit = photoCredit(getSurfaceInfo(surface)?.icon)
+        return `${keys.surfaceKey}=${surface}${credit ? `\n${t('photo', 'Photo')}: ${credit}` : ''}`
       })
-      .on('click', (event: Event, d: Tile) => {
+      .on('click', (event: Event, surface: string) => {
         event.preventDefault()
-        if ('more' in d) {
-          _allSurfaces = !_allSurfaces
-          render()
-        } else {
-          chooseSurface(d.surface)
-        }
+        chooseSurface(surface)
       })
-    merged
-      .select('.ssf-tile-title')
-      .text((d: Tile) =>
-        'more' in d
-          ? _allSurfaces
-            ? t('fewer', 'Fewer')
-            : t('more', 'More')
-          : surfaceTitle(d.surface),
-      )
-    merged
-      .filter((d: Tile) => 'more' in d)
-      .select('.ssf-tile-visual')
-      .text(_allSurfaces ? '−' : `+${all.length - shown.length}`)
   }
 
   function renderSmoothnessChoices(
@@ -332,7 +274,7 @@ export function createSurfaceSmoothnessField(
       })
   }
 
-  // ---- dropdowns: text mode, and below an open picker ----------------------------
+  // ---- the label | input row below an open picker ---------------------------------
 
   /** Values for a dropdown: the catalogue's (in grid order), then the host's other options. */
   function dropdownValues(name: 'surface' | 'smoothness'): string[] {
@@ -359,28 +301,16 @@ export function createSurfaceSmoothnessField(
         }
   }
 
-  /** Two rows like iD's directional fields: a label cell, and a dropdown input. */
-  function renderText(root: Sel) {
-    const rows = oneChild(root, 'ul', 'rows rows-table ssf-text-rows')
-    const row = rows
-      .selectAll(':scope > li')
-      .data([textRow('surface'), textRow('smoothness')], (d: any) => d.key)
-    const enter = row.enter().append('li').attr('class', 'labeled-input')
-    enter.append('div').attr('class', 'label')
-    enter.append('div').attr('class', 'ssf-text-cell')
-    const merged = enter.merge(row as any)
-    merged.select('.label').text((d: TextRow) => d.label)
-    const cells = merged.select('.ssf-text-cell') as Selection<HTMLElement, TextRow, any, any>
-    cells.each((d: TextRow, i: number, nodes: ArrayLike<HTMLElement>) => {
-      const node = nodes[i]
-      if (node) renderDropdown(d3_select(node), d)
-    })
-  }
-
-  /** Below an open picker: the same choice as a dropdown (any value, also one without a photo). */
-  function renderPickerDropdown(picker: Sel, name: 'surface' | 'smoothness') {
-    const cell = oneChild(picker, 'div', 'ssf-picker-dropdown ssf-text-cell')
-    renderDropdown(cell, textRow(name))
+  /**
+   * Below the photos: a label | input row like iD's directional fields, for the same key.
+   * It takes any value, also one without a photo.
+   */
+  function renderPickerRow(picker: Sel, name: 'surface' | 'smoothness') {
+    const d = textRow(name)
+    const rows = oneChild(picker, 'ul', 'rows rows-table ssf-picker-row')
+    const row = oneChild(rows, 'li', 'labeled-input')
+    oneChild(row, 'div', 'label').text(d.label)
+    renderDropdown(oneChild(row, 'div', 'ssf-text-cell'), d)
   }
 
   /** An input with a suggestion list in `cell`; choosing works like clicking a photo. */
@@ -477,7 +407,6 @@ export function createSurfaceSmoothnessField(
   instance.entityIDs = () => {
     // another feature: start again with the closed tiles
     _open = undefined
-    _allSurfaces = false
     return instance
   }
   instance.focus = () => {
@@ -485,12 +414,6 @@ export function createSurfaceSmoothnessField(
     node?.focus()
     return instance
   }
-  instance.mode = ((mode?: SurfaceSmoothnessMode) => {
-    if (mode === undefined) return _mode
-    _mode = mode
-    render()
-    return instance
-  }) as SurfaceSmoothnessInstance['mode']
   instance.on = (type: string, listener?: (...args: unknown[]) => void) => {
     dispatch.on(type, listener)
     return instance

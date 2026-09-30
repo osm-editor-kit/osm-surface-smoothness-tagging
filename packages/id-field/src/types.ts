@@ -29,9 +29,6 @@ export interface SurfaceSmoothnessAdapters {
   options?: (key: 'surface' | 'smoothness') => string[] | undefined
 }
 
-/** `images`: photo grid first (default). `text`: plain inputs, for values without a photo. */
-export type SurfaceSmoothnessMode = 'images' | 'text'
-
 export type FieldTags = Record<string, string | string[] | undefined>
 
 /** Patch emitted on the "change" event: keys to set, `undefined` to clear. */
@@ -42,9 +39,5 @@ export interface SurfaceSmoothnessInstance {
   tags: (tags: FieldTags) => SurfaceSmoothnessInstance
   entityIDs: (ids: string[]) => SurfaceSmoothnessInstance
   focus: () => SurfaceSmoothnessInstance
-  mode: {
-    (): SurfaceSmoothnessMode
-    (mode: SurfaceSmoothnessMode): SurfaceSmoothnessInstance
-  }
   on: (type: string, listener?: (...args: unknown[]) => void) => SurfaceSmoothnessInstance
 }

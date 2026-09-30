@@ -88,12 +88,15 @@
 
 /* ---- the open picker below the tiles ---- */
 
+/* set apart from the two tiles above */
 .ssf-picker {
-  margin-top: 3px;
+  margin-top: 10px;
 }
-/* the same choice as a dropdown, below the photos */
-.ssf-picker-dropdown {
-  margin-top: 3px;
+/* label | input row below the photos (iD styles it like its other rows) */
+.ssf-picker-row {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 /* ---- step 1: surface photos ---- */
@@ -144,13 +147,6 @@
   font-size: 10px;
   line-height: 1.2;
   color: var(--ssf-accent);
-}
-.ssf-tile-more .ssf-tile-visual {
-  font-size: 16px;
-  color: var(--ssf-muted);
-}
-.ssf-tile-more .ssf-tile-title {
-  color: var(--ssf-muted);
 }
 
 /* ---- step 2: smoothness photos (or levels without photos) ---- */
@@ -222,13 +218,8 @@
   outline-offset: -2px;
 }
 
-/* ---- text mode: rows like iD's directional fields ---- */
+/* ---- the input in the row ---- */
 
-.ssf-text-rows {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
 .ssf-text-cell {
   position: relative;
 }
