@@ -1,6 +1,6 @@
 {
   "name": "@osm-editor-kit/surface-smoothness-id-field",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "D3-based iD inspector field for combined surface + smoothness tagging",
   "keywords": [
     "iD",

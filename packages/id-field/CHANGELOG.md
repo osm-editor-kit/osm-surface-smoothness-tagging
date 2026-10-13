@@ -1,5 +1,12 @@
 # @osm-editor-kit/surface-smoothness-id-field
 
+## 0.1.1
+
+### Patch Changes
+
+- Depend on the MIT `@osm-editor-kit/surface-smoothness-data` release. 0.1.0 still pointed at the deprecated 0.0.0.
+  - @osm-editor-kit/surface-smoothness-data@0.1.1
+
 ## 0.1.0
 
 ### Minor Changes
