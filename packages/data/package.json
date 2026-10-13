@@ -1,6 +1,6 @@
 {
   "name": "@osm-editor-kit/surface-smoothness-data",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "Canonical surface/smoothness catalogue (JSON + web image/icon assets) extracted from StreetComplete",
   "keywords": [
     "openstreetmap",
