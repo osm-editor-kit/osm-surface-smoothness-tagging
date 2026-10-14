@@ -33,6 +33,10 @@
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js"
     },
+    "./logic": {
+      "types": "./dist/logic.d.ts",
+      "import": "./dist/logic.js"
+    },
     "./surface-smoothness-field.css": "./dist/surface-smoothness-field.css",
     "./package.json": "./package.json"
   },
@@ -45,7 +49,7 @@
     "build": "bun run build:clean && bun run build:js && bun run build:css && bun run build:types",
     "build:clean": "rm -rf dist dist-iife",
     "build:css": "cp src/surface-smoothness-field.css dist/surface-smoothness-field.css",
-    "build:js": "vite build --config vite.esm.config.ts && vite build --config vite.iife.config.ts",
+    "build:js": "vite build --config vite.esm.config.ts && vite build --config vite.logic.config.ts && vite build --config vite.iife.config.ts",
     "build:types": "tsc -p tsconfig.build.json",
     "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
     "check-exports": "attw --pack . --ignore-rules cjs-resolves-to-esm no-resolution --profile node16",

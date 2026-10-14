@@ -20,4 +20,6 @@ export type {
   SurfaceSmoothnessFieldDefinition,
   SurfaceSmoothnessInstance,
   TagPatch,
+  TooltipInfo,
 } from './types.js'
+export type { FieldKeys, SmoothnessChoice } from './logic.js'

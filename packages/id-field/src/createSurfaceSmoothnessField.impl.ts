@@ -17,6 +17,7 @@ import type {
   SurfaceSmoothnessFieldDefinition,
   SurfaceSmoothnessInstance,
   TagPatch,
+  TooltipInfo,
 } from './types.js'
 
 // d3 selections + dispatch are loosely typed inside the widget; the public API (types.ts) is strict.
@@ -54,6 +55,8 @@ export function createSurfaceSmoothnessField(
   let _root: Sel = d3_select<any, unknown>(null as any)
   /** The picker open below the two tiles, if any. */
   let _open: 'surface' | 'smoothness' | undefined
+  /** Where keyboard focus goes after the next render: a tile, or the open picker. */
+  let _focusNext: 'surface' | 'smoothness' | 'picker' | undefined
 
   const value = (key: string): string | undefined => {
     const v = _tags[key]
@@ -68,21 +71,47 @@ export function createSurfaceSmoothnessField(
     catalogue.smoothnessLevels[smoothness]?.title ??
     smoothness
 
+  /** Tooltip of a tile or card: the full label, the tag, the description, the photo credit. */
+  function tooltip(
+    key: 'surface' | 'smoothness',
+    v: string,
+    description: string | null | undefined,
+    photo: string | null | undefined,
+    surface?: string,
+  ): string | null {
+    const info: TooltipInfo = {
+      key,
+      value: v,
+      tag: `${key === 'surface' ? keys.surfaceKey : keys.smoothnessKey}=${v}`,
+      label: key === 'surface' ? surfaceTitle(v) : smoothnessTitle(v),
+      description: adapters.optionDescription?.(key, v, surface) ?? description ?? undefined,
+      credit: photoCredit(photo),
+    }
+    const custom = adapters.tooltip?.(info)
+    if (custom !== undefined) return custom
+    const credit = info.credit ? `${t('photo', 'Photo')}: ${info.credit}` : undefined
+    return [info.label, info.tag, info.description, credit].filter(Boolean).join('\n')
+  }
+
   function emit(patch: TagPatch) {
     _tags = { ..._tags, ...patch }
     render()
     dispatch.call('change', instance, patch)
+    applyFocus()
   }
 
-  function chooseSurface(surface: string | undefined) {
+  /** `fromPicker`: chosen in the photos, so keyboard focus moves on with the user. */
+  function chooseSurface(surface: string | undefined, fromPicker = false) {
     // the smoothness for this surface comes next
     _open = surface ? 'smoothness' : undefined
-    if (surface === value(keys.surfaceKey)) return render()
+    if (fromPicker) _focusNext = surface ? 'picker' : 'surface'
+    if (surface === value(keys.surfaceKey)) return update()
     emit(surfaceChangePatch(value(keys.smoothnessKey), surface, keys))
   }
 
-  function chooseSmoothness(smoothness: string | undefined) {
+  function chooseSmoothness(smoothness: string | undefined, fromPicker = false) {
     _open = undefined
+    if (fromPicker) _focusNext = 'smoothness'
     emit(smoothnessChangePatch(smoothness, keys))
   }
 
@@ -91,7 +120,95 @@ export function createSurfaceSmoothnessField(
     const needsSurface = picker === 'smoothness' && !value(keys.surfaceKey)
     const next = needsSurface ? 'surface' : picker
     _open = _open === next ? undefined : next
+    _focusNext = _open ? 'picker' : picker
+    update()
+  }
+
+  /** Escape in a picker: close it, back to its tile. */
+  function close() {
+    const tile = _open
+    _open = undefined
+    _focusNext = tile
+    update()
+  }
+
+  function update() {
     render()
+    applyFocus()
+  }
+
+  function applyFocus() {
+    const target = _focusNext
+    _focusNext = undefined
+    const root = _root.node() as HTMLElement | null
+    if (!target || !root) return
+    const node =
+      target === 'picker'
+        ? root.querySelector<HTMLElement>('.ssf-picker button[tabindex="0"]')
+        : root.querySelector<HTMLElement>(`.ssf-value-${target}`)
+    node?.focus()
+  }
+
+  /**
+   * Arrow keys in a photo grid (one tab stop per grid): left/right to the neighbour, up/down to
+   * the closest one in the row above/below, Home/End to the ends. Escape closes the picker.
+   */
+  function onGridKeydown(event: KeyboardEvent) {
+    const grid = event.currentTarget as HTMLElement
+    const items = Array.from(grid.querySelectorAll<HTMLElement>(':scope > button'))
+    const current = items.indexOf(event.target as HTMLElement)
+    if (current < 0) return
+    if (!GRID_KEYS.includes(event.key)) return
+    // the host's own arrow keys (iD pans the map with them) must not fire as well, also at an edge
+    event.preventDefault()
+    event.stopPropagation()
+    const next = gridNeighbour(
+      items,
+      current,
+      event.key,
+      getComputedStyle(grid).direction === 'rtl',
+    )
+    if (next === undefined) return
+    items.forEach((item, i) => item.setAttribute('tabindex', i === next ? '0' : '-1'))
+    items[next]?.focus()
+  }
+
+  /**
+   * Escape on a photo closes the picker. Listened for on `window` in the capture phase while a
+   * picker is open: hosts may catch Escape early on `document` (iD leaves the feature with it).
+   */
+  function onEscape(event: KeyboardEvent) {
+    const root = _root.node() as (HTMLElement & { __ssfOwner?: unknown }) | null
+    // The host dropped this field (iD makes new ones without telling the old), or another
+    // instance took over its node: stop listening.
+    if (!root?.isConnected || root.__ssfOwner !== instance) {
+      window.removeEventListener('keydown', onEscape, true)
+      _escapeListening = false
+      return
+    }
+    if (event.key !== 'Escape' || !_open) return
+    const target = event.target as HTMLElement | null
+    const picker = root.querySelector('.ssf-picker')
+    if (!target || !picker?.contains(target) || target.tagName !== 'BUTTON') return
+    event.preventDefault()
+    event.stopImmediatePropagation()
+    close()
+  }
+  let _escapeListening = false
+  function listenForEscape() {
+    if (typeof window === 'undefined' || Boolean(_open) === _escapeListening) return
+    _escapeListening = Boolean(_open)
+    if (_escapeListening) window.addEventListener('keydown', onEscape, true)
+    else window.removeEventListener('keydown', onEscape, true)
+  }
+
+  /** One tab stop per grid: the chosen item, or the first one. */
+  function rovingTabindex(items: Sel, isCurrent: (d: any) => boolean) {
+    const nodes = items.nodes() as HTMLElement[]
+    const chosen = nodes.findIndex((node) => isCurrent((node as any).__data__))
+    nodes.forEach((node, i) =>
+      node.setAttribute('tabindex', i === Math.max(chosen, 0) ? '0' : '-1'),
+    )
   }
 
   /** A direct child with this class, created once. */
@@ -108,6 +225,7 @@ export function createSurfaceSmoothnessField(
   // ---- rendering --------------------------------------------------------------
 
   function render() {
+    listenForEscape()
     if (_root.empty() || !_root.node()) return
     renderImages(_root)
   }
@@ -120,25 +238,30 @@ export function createSurfaceSmoothnessField(
 
     // two tiles side by side: the surface and its smoothness
     const pair = oneChild(root, 'div', 'ssf-pair')
+    const surfacePhoto = surface ? (getSurfaceInfo(surface)?.icon ?? undefined) : undefined
     renderValueTile(pair, {
       id: 'surface',
-      photo: surface ? (getSurfaceInfo(surface)?.icon ?? undefined) : undefined,
+      photo: surfacePhoto,
       emoji: undefined,
+      mixed: isMixed(keys.surfaceKey),
       title: isMixed(keys.surfaceKey) ? mixed : surface ? surfaceTitle(surface) : undefined,
       placeholder: t('surface', 'Surface'),
-      tag: surface ? `${keys.surfaceKey}=${surface}` : undefined,
+      tooltip: surface ? tooltip('surface', surface, undefined, surfacePhoto) : null,
     })
     renderValueTile(pair, {
       id: 'smoothness',
       photo: choice?.cell?.photo,
       emoji: smoothness ? (catalogue.smoothnessLevels[smoothness]?.emoji ?? undefined) : undefined,
+      mixed: isMixed(keys.smoothnessKey),
       title: isMixed(keys.smoothnessKey)
         ? mixed
         : smoothness
           ? smoothnessTitle(smoothness)
           : undefined,
       placeholder: t('smoothness', 'Smoothness'),
-      tag: smoothness ? `${keys.smoothnessKey}=${smoothness}` : undefined,
+      tooltip: smoothness
+        ? tooltip('smoothness', smoothness, choice?.cell?.description, choice?.cell?.photo, surface)
+        : null,
     })
 
     // the open picker, below the tiles
@@ -163,22 +286,19 @@ export function createSurfaceSmoothnessField(
       id: 'surface' | 'smoothness'
       photo: string | undefined
       emoji: string | undefined
+      mixed: boolean
       title: string | undefined
       placeholder: string
-      tag: string | undefined
+      tooltip: string | null
     },
   ) {
     const button = oneChild(parent, 'button', `ssf-value ssf-value-${d.id}`)
       .attr('type', 'button')
       .classed('empty', !d.title)
+      .classed('mixed', d.mixed)
       .classed('open', _open === d.id)
       .attr('aria-expanded', String(_open === d.id))
-      .attr(
-        'title',
-        [d.tag, photoCredit(d.photo) ? `${t('photo', 'Photo')}: ${photoCredit(d.photo)}` : '']
-          .filter(Boolean)
-          .join('\n') || null,
-      )
+      .attr('title', d.tooltip)
       .on('click', (event: Event) => {
         event.preventDefault()
         toggle(d.id)
@@ -194,7 +314,7 @@ export function createSurfaceSmoothnessField(
   }
 
   function renderSurfaceGrid(parent: Sel, current: string | undefined) {
-    const grid = oneChild(parent, 'div', 'ssf-tiles')
+    const grid = oneChild(parent, 'div', 'ssf-tiles').on('keydown', onGridKeydown)
     const tile = grid.selectAll('button.ssf-tile').data(orderedSurfaces(), (d: any) => d)
     tile.exit().remove()
     const enter = tile.enter().append('button').attr('type', 'button').attr('class', 'ssf-tile')
@@ -207,19 +327,19 @@ export function createSurfaceSmoothnessField(
       }
       button.append('span').attr('class', 'ssf-tile-title').text(surfaceTitle(surface))
     })
-    enter
+    const tiles = enter
       .merge(tile as any)
       .order()
       .classed('selected', (surface: string) => surface === current)
       .attr('aria-pressed', (surface: string) => String(surface === current))
-      .attr('title', (surface: string) => {
-        const credit = photoCredit(getSurfaceInfo(surface)?.icon)
-        return `${keys.surfaceKey}=${surface}${credit ? `\n${t('photo', 'Photo')}: ${credit}` : ''}`
-      })
+      .attr('title', (surface: string) =>
+        tooltip('surface', surface, undefined, getSurfaceInfo(surface)?.icon),
+      )
       .on('click', (event: Event, surface: string) => {
         event.preventDefault()
-        chooseSurface(surface)
+        chooseSurface(surface, true)
       })
+    rovingTabindex(tiles, (surface: string) => surface === current)
   }
 
   function renderSmoothnessChoices(
@@ -230,7 +350,10 @@ export function createSurfaceSmoothnessField(
   ) {
     const withPhotos = choices.some((c) => c.cell)
     parent.selectAll(withPhotos ? ':scope > .ssf-levels' : ':scope > .ssf-cards').remove()
-    const list = oneChild(parent, 'div', withPhotos ? 'ssf-cards' : 'ssf-levels')
+    const list = oneChild(parent, 'div', withPhotos ? 'ssf-cards' : 'ssf-levels').on(
+      'keydown',
+      onGridKeydown,
+    )
 
     // keyed by surface: a new surface brings new photos
     const card = list
@@ -255,23 +378,20 @@ export function createSurfaceSmoothnessField(
         .text(d.level?.emoji ?? '')
       head.append('span').attr('class', 'ssf-card-title').text(smoothnessTitle(d.smoothness))
     })
-    enter
+    const cards = enter
       .merge(card as any)
       .order()
       .classed('selected', (d: SmoothnessChoice) => d.smoothness === current)
       .attr('aria-pressed', (d: SmoothnessChoice) => String(d.smoothness === current))
-      .attr('title', (d: SmoothnessChoice) => {
-        const lines = [`${keys.smoothnessKey}=${d.smoothness}`]
-        if (d.cell?.description) lines.push(d.cell.description)
-        const credit = photoCredit(d.cell?.photo)
-        if (credit) lines.push(`${t('photo', 'Photo')}: ${credit}`)
-        return lines.join('\n')
-      })
+      .attr('title', (d: SmoothnessChoice) =>
+        tooltip('smoothness', d.smoothness, d.cell?.description, d.cell?.photo, surface),
+      )
       .on('click', (event: Event, d: SmoothnessChoice) => {
         event.preventDefault()
         // choosing the current value again removes it
-        chooseSmoothness(d.smoothness === current ? undefined : d.smoothness)
+        chooseSmoothness(d.smoothness === current ? undefined : d.smoothness, true)
       })
+    rovingTabindex(cards, (d: SmoothnessChoice) => d.smoothness === current)
   }
 
   // ---- the label | input row below an open picker ---------------------------------
@@ -406,6 +526,9 @@ export function createSurfaceSmoothnessField(
       .append('div')
       .attr('class', 'surface-smoothness-field')
       .merge(sel as any)
+    // the instance that draws into this node now (see onEscape)
+    const node = _root.node() as (HTMLElement & { __ssfOwner?: unknown }) | null
+    if (node) node.__ssfOwner = instance
     render()
   }) as unknown as SurfaceSmoothnessInstance
 
@@ -417,6 +540,7 @@ export function createSurfaceSmoothnessField(
   instance.entityIDs = () => {
     // another feature: start again with the closed tiles
     _open = undefined
+    listenForEscape()
     return instance
   }
   instance.focus = () => {
@@ -430,4 +554,43 @@ export function createSurfaceSmoothnessField(
   }
 
   return instance
+}
+
+const GRID_KEYS = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Home', 'End']
+
+/**
+ * The item an arrow key (or Home/End) moves to in a wrapping grid of `items`, by their position
+ * on screen; undefined for other keys or at an edge.
+ */
+export function gridNeighbour(
+  items: HTMLElement[],
+  current: number,
+  key: string,
+  rtl = false,
+): number | undefined {
+  const last = items.length - 1
+  const forward = rtl ? 'ArrowLeft' : 'ArrowRight'
+  const back = rtl ? 'ArrowRight' : 'ArrowLeft'
+  if (key === 'Home') return 0
+  if (key === 'End') return last
+  if (key === forward) return current < last ? current + 1 : undefined
+  if (key === back) return current > 0 ? current - 1 : undefined
+  if (key !== 'ArrowDown' && key !== 'ArrowUp') return undefined
+  const from = items[current]?.getBoundingClientRect()
+  if (!from) return undefined
+  const down = key === 'ArrowDown'
+  let best: number | undefined
+  let bestScore = Infinity
+  items.forEach((item, i) => {
+    const box = item.getBoundingClientRect()
+    const rowDistance = down ? box.top - from.top : from.top - box.top
+    if (rowDistance < 1) return
+    // the nearest row first, then the closest column in it
+    const score = rowDistance * 10_000 + Math.abs(box.left - from.left)
+    if (score < bestScore) {
+      bestScore = score
+      best = i
+    }
+  })
+  return best
 }

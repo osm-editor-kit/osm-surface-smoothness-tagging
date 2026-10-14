@@ -34,6 +34,19 @@ describe('logic', () => {
     expect(surfaceChangePatch('good', 'sett')).toEqual({ surface: 'sett' })
   })
 
+  it('keeps smoothness on a surface without reference photos, where every level is offered', () => {
+    expect(surfaceChangePatch('good', 'metal')).toEqual({ surface: 'metal' })
+    expect(surfaceChangePatch('good', 'my_own_surface')).toEqual({ surface: 'my_own_surface' })
+  })
+
+  it('keeps smoothness when the surface is removed', () => {
+    expect(surfaceChangePatch('good', undefined)).toEqual({ surface: undefined })
+  })
+
+  it('keeps a smoothness value the catalogue does not know', () => {
+    expect(surfaceChangePatch('robust', 'sett')).toEqual({ surface: 'sett' })
+  })
+
   it('resolves aliases when validating (concrete:plates → concrete)', () => {
     expect(isSmoothnessValidForSurface('concrete:plates', 'excellent')).toBe(true)
   })

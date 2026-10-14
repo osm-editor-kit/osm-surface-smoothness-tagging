@@ -22,20 +22,32 @@ export function resolveKeys(field: SurfaceSmoothnessFieldDefinition = {}): Field
   }
 }
 
+/**
+ * Smoothness values with a reference photo for this surface; `[]` when there are none. What
+ * the picker offers (every level for a surface without photos) is `smoothnessChoices`.
+ */
 export function smoothnessValuesForSurface(surface: string | undefined): string[] {
   if (!surface) return []
   return getSmoothnessOptionsForSurface(surface).map((o) => o.smoothness)
 }
 
+/**
+ * Whether a smoothness may stay on a surface. Only a level the catalogue knows, on a surface
+ * with reference photos that do not include it, is not valid (e.g. `excellent` on `sett`).
+ * Everything the picker offers is valid, and so is any value the catalogue does not know.
+ */
 export function isSmoothnessValidForSurface(
   surface: string | undefined,
   smoothness: string | undefined,
 ): boolean {
-  if (!smoothness) return true
-  return smoothnessValuesForSurface(surface).includes(smoothness)
+  if (!smoothness || !(smoothness in catalogue.smoothnessLevels)) return true
+  return smoothnessChoices(surface).some((choice) => choice.smoothness === smoothness)
 }
 
-/** Setting the surface: write it, and clear smoothness if it is no longer offered. */
+/**
+ * Setting the surface: write it, and clear a smoothness the new surface cannot have. Removing
+ * the surface, or choosing one without reference photos, keeps the smoothness.
+ */
 export function surfaceChangePatch(
   currentSmoothness: string | undefined,
   nextSurface: string | undefined,
@@ -57,8 +69,8 @@ export function smoothnessChangePatch(
 }
 
 /**
- * Surfaces shown first in the photo grid (three rows of four): the usual ones on roads, cycleways
- * and paths. The others (rare or unspecific, like `paved`, `wood`, `rubber`) follow behind "More".
+ * Surfaces shown first in the photo grid: the usual ones on roads, cycleways and paths. The
+ * others (rare or unspecific, like `paved`, `wood`, `rubber`) follow in the same grid.
  */
 export const COMMON_SURFACES = [
   'asphalt',

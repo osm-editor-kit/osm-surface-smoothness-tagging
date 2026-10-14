@@ -3,6 +3,9 @@
 Shared `surface` + `smoothness` tagging data and UI for OpenStreetMap editors,
 initially extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete).
 
+Made for road-like ways: roads, cycleways, footways, paths and road-like areas such as pedestrian squares.
+The photos show road surfaces, so the picker does not fit sport pitches, parking areas or playgrounds.
+
 Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org (same family as
 [`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index)).
 
