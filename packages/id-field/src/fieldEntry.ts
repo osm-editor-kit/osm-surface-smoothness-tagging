@@ -3,7 +3,11 @@
 
 export { createSurfaceSmoothnessField } from './createSurfaceSmoothnessField.impl.js'
 export {
+  COMMON_SURFACES,
   isSmoothnessValidForSurface,
+  orderedSurfaces,
+  photoCredit,
+  smoothnessChoices,
   resolveKeys,
   smoothnessChangePatch,
   smoothnessValuesForSurface,
@@ -16,4 +20,6 @@ export type {
   SurfaceSmoothnessFieldDefinition,
   SurfaceSmoothnessInstance,
   TagPatch,
+  TooltipInfo,
 } from './types.js'
+export type { FieldKeys, SmoothnessChoice } from './logic.js'

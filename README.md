@@ -3,6 +3,9 @@
 Shared `surface` + `smoothness` tagging data and UI for OpenStreetMap editors,
 initially extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete).
 
+Made for road-like ways: roads, cycleways, footways, paths and road-like areas such as pedestrian squares.
+The photos show road surfaces, so the picker does not fit sport pitches, parking areas or playgrounds.
+
 Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org (same family as
 [`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index)).
 
@@ -65,5 +68,6 @@ publishing when you add a release workflow later).
 Photos and texts in `packages/data` have their own sources:
 
 - **Reference photos** keep their own licenses (CC-BY, CC-BY-SA, CC0, public domain). They are listed per file in `catalogue.attribution`, and any UI that shows them must keep that attribution.
+  Two photos have no public source page and are credited the way StreetComplete credits them: `surface_unpaved_impassable.jpg` (public domain, Tobias Zwick) and `surface_paving_stones.jpg` (CC-BY-SA 4.0, Tobias Zwick with modifications by Mateusz Konieczny).
 - **Labels and descriptions** come from [StreetComplete](https://github.com/streetcomplete/StreetComplete)'s English strings. We treat them as descriptions of OSM tag values from the shared OSM ecosystem. See [#1](https://github.com/osm-editor-kit/osm-surface-smoothness-tagging/issues/1).
 - **Vehicle icons**: StreetComplete's vehicle SVGs are GPL-3.0, so this repo does not include them. It uses the "usable by" emoji instead.

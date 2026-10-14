@@ -1,167 +1,299 @@
-/* Surface/smoothness field. Uses iD theme variables with standalone fallbacks so
-   it renders both inside iD and in the demo app. */
+/* Surface/smoothness field: photos first, in two steps.
+
+   Theming: set any `--ssf-*` custom property on the field or an ancestor (`:root` works). Unset
+   ones fall back to iD's theme variables, then to standalone values, so the field renders both
+   inside iD and on its own.
+
+   Overrides: rules are `.surface-smoothness-field .ssf-…` (two classes or more), so they win over
+   a host's element rules like `.ideditor button` and `.ideditor button:focus`, wherever the
+   stylesheet is loaded. A host rule of the same weight that comes later wins, e.g.
+   `.surface-smoothness-field .ssf-tile { … }`. The `ssf-*` class names are stable. */
 
 .surface-smoothness-field {
-  --ssf-border: var(--border-color, #ccd);
-  --ssf-bg: var(--bg-color, #fff);
-  --ssf-nested-bg: var(--nested-bg-color, #f6f6f6);
-  --ssf-text: var(--text-color, #333);
-  --ssf-muted: var(--muted-text-color, #767676);
-  --ssf-accent: var(--link-color, #1e90ff);
+  --_bg: var(--ssf-bg, var(--bg-color, #fff));
+  --_photo-bg: var(--ssf-photo-bg, var(--bg-color-2, #f6f6f6));
+  --_hover-bg: var(--ssf-hover-bg, var(--bg-color-3, #eee));
+  --_border: var(--ssf-border, var(--border-color, #ccc));
+  --_text: var(--ssf-text, var(--text-color, #333));
+  --_muted: var(--ssf-muted, var(--muted-text-color, #767676));
+  --_accent: var(--ssf-accent, var(--link-color, #1e90ff));
+  --_focus: var(--ssf-focus, var(--_text));
+  --_radius: var(--ssf-radius, 4px);
+  --_gap: var(--ssf-gap, 3px);
+  --_font-size: var(--ssf-font-size, 12px);
+  --_label-font-size: var(--ssf-label-font-size, 10px);
+  --_label-lines: var(--ssf-label-lines, 2);
+  --_photo-ratio: var(--ssf-photo-ratio, 4 / 3);
+  --_value-photo-height: var(--ssf-value-photo-height, 48px);
+  --_tile-min-width: var(--ssf-tile-min-width, 56px);
+  --_card-min-width: var(--ssf-card-min-width, 72px);
+  --_picker-max-height: var(--ssf-picker-max-height, none);
   display: flex;
   flex-direction: column;
-  gap: 12px;
   width: 100%;
-  color: var(--ssf-text);
+  color: var(--_text);
+  font-size: var(--_font-size);
 }
 
-.ssf-section {
+.surface-smoothness-field :is(.ssf-value, .ssf-tile, .ssf-card) {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+/* a host's own focus and press styles (iD: `.ideditor button:focus`) do not apply */
+.surface-smoothness-field :is(.ssf-value, .ssf-tile, .ssf-card):is(:focus, :active) {
+  background: var(--_bg);
+  outline: none;
+}
+/* keyboard focus: a ring in the text color, apart from the accent ring of the chosen one */
+.surface-smoothness-field :is(.ssf-value, .ssf-tile, .ssf-card):focus-visible {
+  background: var(--_hover-bg);
+  outline: 2px solid var(--_focus);
+  outline-offset: -2px;
+}
+
+/* ---- the two tiles: surface and smoothness ---- */
+
+.surface-smoothness-field .ssf-pair {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--_gap);
+}
+.surface-smoothness-field .ssf-value {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  min-width: 0;
+  height: auto;
+  padding: 0;
+  overflow: hidden;
+  text-align: start;
+  background: var(--_bg);
+  border: 0;
+  border-radius: var(--_radius);
+}
+.surface-smoothness-field .ssf-value:hover,
+.surface-smoothness-field .ssf-value:focus-visible {
+  background: var(--_hover-bg);
+}
+.surface-smoothness-field .ssf-value-visual {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: var(--_value-photo-height);
+  overflow: hidden;
+  background: var(--_photo-bg);
+}
+.surface-smoothness-field .ssf-value-visual img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.surface-smoothness-field .ssf-value-emoji {
+  font-size: 20px;
+}
+.surface-smoothness-field .ssf-value-title {
+  display: block;
+  overflow: hidden;
+  padding: 3px 6px 4px;
+  font-size: var(--_font-size);
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--_accent);
+}
+/* not set yet: an empty frame in the border color, the name as placeholder */
+.surface-smoothness-field .ssf-value.empty {
+  background: none;
+  box-shadow: inset 0 0 0 1px var(--_border);
+}
+.surface-smoothness-field .ssf-value.empty .ssf-value-visual {
+  background: none;
+}
+.surface-smoothness-field .ssf-value.empty .ssf-value-title {
+  color: var(--_muted);
+}
+/* several features with different values */
+.surface-smoothness-field .ssf-value.mixed .ssf-value-title {
+  font-style: italic;
+  color: var(--_muted);
+}
+.surface-smoothness-field .ssf-value.open {
+  box-shadow: inset 0 0 0 2px var(--_accent);
 }
 
-.ssf-label {
-  font-weight: bold;
-  font-size: 11px;
-  text-transform: uppercase;
-  color: var(--ssf-muted);
+/* ---- the open picker below the tiles ---- */
+
+/* set apart from the two tiles above */
+.surface-smoothness-field .ssf-picker {
+  margin-top: 10px;
+}
+.surface-smoothness-field .ssf-tiles,
+.surface-smoothness-field .ssf-cards,
+.surface-smoothness-field .ssf-levels {
+  max-height: var(--_picker-max-height);
+  overflow-y: auto;
+}
+/* label | input row below the photos (iD styles it like its other rows) */
+.surface-smoothness-field .ssf-picker-row {
+  margin: 6px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-/* ---- surface combobox ---- */
+/* ---- step 1: surface photos ---- */
 
-.ssf-combo {
+.surface-smoothness-field .ssf-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--_tile-min-width), 1fr));
+  gap: var(--_gap);
+}
+.surface-smoothness-field .ssf-tile {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  padding: 0 0 3px;
+  overflow: hidden;
+  text-align: center;
+  background: var(--_bg);
+  border: 0;
+  border-radius: var(--_radius);
+}
+.surface-smoothness-field .ssf-tile:hover,
+.surface-smoothness-field .ssf-tile:focus-visible {
+  background: var(--_hover-bg);
+}
+.surface-smoothness-field .ssf-tile-visual {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: var(--_photo-ratio);
+  width: 100%;
+  background: var(--_photo-bg);
+}
+.surface-smoothness-field .ssf-tile-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.surface-smoothness-field .ssf-tile-title,
+.surface-smoothness-field .ssf-card-title {
+  display: -webkit-box;
+  -webkit-line-clamp: var(--_label-lines);
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  hyphens: auto;
+  font-size: var(--_label-font-size);
+  line-height: 1.2;
+  color: var(--_accent);
+}
+.surface-smoothness-field .ssf-tile-title {
+  margin: 2px 2px 0;
+}
+/* ---- step 2: smoothness photos (or levels without photos) ---- */
+
+.surface-smoothness-field .ssf-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--_card-min-width), 1fr));
+  gap: var(--_gap);
+}
+.surface-smoothness-field .ssf-levels {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.surface-smoothness-field .ssf-card {
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  padding: 0;
+  overflow: hidden;
+  text-align: start;
+  background: var(--_bg);
+  border: 0;
+  border-radius: var(--_radius);
+}
+.surface-smoothness-field .ssf-levels .ssf-card {
+  flex: 0 0 auto;
+  border-radius: 0;
+}
+.surface-smoothness-field .ssf-levels .ssf-card:first-child {
+  border-radius: var(--_radius) var(--_radius) 0 0;
+}
+.surface-smoothness-field .ssf-levels .ssf-card:last-child {
+  border-radius: 0 0 var(--_radius) var(--_radius);
+}
+.surface-smoothness-field .ssf-card:hover,
+.surface-smoothness-field .ssf-card:focus-visible {
+  background: var(--_hover-bg);
+}
+.surface-smoothness-field .ssf-card-photo {
+  width: 100%;
+  aspect-ratio: var(--_photo-ratio);
+  object-fit: cover;
+  background: var(--_photo-bg);
+}
+.surface-smoothness-field .ssf-card-head {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 22px;
+  padding: 2px 4px;
+}
+.surface-smoothness-field .ssf-card-emoji {
+  flex: 0 0 auto;
+  font-size: var(--_font-size);
+}
+
+/* the chosen tile / card */
+.surface-smoothness-field .ssf-tile.selected,
+.surface-smoothness-field .ssf-card.selected {
+  box-shadow: inset 0 0 0 2px var(--_accent);
+}
+
+/* ---- the input in the row ---- */
+
+.surface-smoothness-field .ssf-text-cell {
   position: relative;
 }
-
-.ssf-surface-input {
+.surface-smoothness-field .ssf-text-input {
   width: 100%;
   box-sizing: border-box;
-  padding: 6px 8px;
-  border: 1px solid var(--ssf-border);
-  border-radius: 4px;
-  background: var(--ssf-bg);
-  color: inherit;
-  font-size: 13px;
+  color: var(--_accent);
 }
-
-.ssf-combo-list {
+.surface-smoothness-field .ssf-text-input::placeholder {
+  color: var(--_muted);
+}
+.surface-smoothness-field .ssf-combo-list {
   position: absolute;
   z-index: 50;
   top: 100%;
   left: 0;
   right: 0;
-  margin: 2px 0 0;
+  margin: 1px 0 0;
   padding: 0;
   max-height: 220px;
   overflow-y: auto;
   list-style: none;
-  background: var(--ssf-bg);
-  border: 1px solid var(--ssf-border);
-  border-radius: 4px;
-  box-shadow: 0 4px 12px rgb(0 0 0 / 12%);
+  background: var(--_bg);
+  border: 1px solid var(--_border);
+  border-radius: var(--_radius);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 20%);
 }
-
-.ssf-combo-item {
-  display: grid;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
+.surface-smoothness-field .ssf-combo-item {
+  display: flex;
+  justify-content: space-between;
   gap: 8px;
-  padding: 5px 8px;
+  padding: 4px 8px;
   cursor: pointer;
 }
-
-.ssf-combo-item:hover,
-.ssf-combo-item.selected {
-  background: var(--ssf-nested-bg);
+.surface-smoothness-field .ssf-combo-item:hover {
+  background: var(--_hover-bg);
 }
-
-.ssf-combo-icon {
-  width: 28px;
-  height: 28px;
-  object-fit: cover;
-  border-radius: 3px;
-}
-
-.ssf-combo-title {
-  font-size: 13px;
-}
-
-.ssf-combo-code {
+.surface-smoothness-field .ssf-combo-code {
   font-family: monospace;
   font-size: 11px;
-  color: var(--ssf-muted);
-}
-
-/* ---- smoothness grid ---- */
-
-.ssf-hint {
-  font-size: 12px;
-  color: var(--ssf-muted);
-  padding: 6px 0;
-}
-
-.ssf-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 8px;
-}
-
-.ssf-card {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 6px;
-  text-align: left;
-  border: 1px solid var(--ssf-border);
-  border-radius: 6px;
-  background: var(--ssf-nested-bg);
-  cursor: pointer;
-  font: inherit;
-  color: inherit;
-}
-
-.ssf-card:hover {
-  border-color: var(--ssf-accent);
-}
-
-.ssf-card.selected {
-  border-color: var(--ssf-accent);
-  outline: 2px solid var(--ssf-accent);
-  outline-offset: -1px;
-}
-
-.ssf-card-photo {
-  width: 100%;
-  height: 84px;
-  object-fit: cover;
-  border-radius: 4px;
-  background: var(--ssf-border);
-}
-
-.ssf-card-head {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.ssf-card-emoji {
-  font-size: 16px;
-}
-
-.ssf-card-title {
-  font-size: 13px;
-  font-weight: bold;
-}
-
-.ssf-card-value {
-  font-family: monospace;
-  font-size: 11px;
-  color: var(--ssf-muted);
-}
-
-.ssf-card-desc {
-  font-size: 11px;
-  color: var(--ssf-muted);
-  line-height: 1.3;
+  color: var(--_muted);
 }

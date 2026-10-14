@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 import {
+  COMMON_SURFACES,
   isSmoothnessValidForSurface,
+  orderedSurfaces,
+  photoCredit,
+  smoothnessChoices,
   smoothnessChangePatch,
   smoothnessValuesForSurface,
   surfaceChangePatch,
@@ -30,6 +34,19 @@ describe('logic', () => {
     expect(surfaceChangePatch('good', 'sett')).toEqual({ surface: 'sett' })
   })
 
+  it('keeps smoothness on a surface without reference photos, where every level is offered', () => {
+    expect(surfaceChangePatch('good', 'metal')).toEqual({ surface: 'metal' })
+    expect(surfaceChangePatch('good', 'my_own_surface')).toEqual({ surface: 'my_own_surface' })
+  })
+
+  it('keeps smoothness when the surface is removed', () => {
+    expect(surfaceChangePatch('good', undefined)).toEqual({ surface: undefined })
+  })
+
+  it('keeps a smoothness value the catalogue does not know', () => {
+    expect(surfaceChangePatch('robust', 'sett')).toEqual({ surface: 'sett' })
+  })
+
   it('resolves aliases when validating (concrete:plates → concrete)', () => {
     expect(isSmoothnessValidForSurface('concrete:plates', 'excellent')).toBe(true)
   })
@@ -42,5 +59,27 @@ describe('logic', () => {
     expect(smoothnessChangePatch('bad', { surfaceKey: 's', smoothnessKey: 'sm' })).toEqual({
       sm: 'bad',
     })
+  })
+
+  it('orders the common surfaces first, then the rest', () => {
+    const ordered = orderedSurfaces()
+    expect(ordered.slice(0, COMMON_SURFACES.length)).toEqual(COMMON_SURFACES)
+    expect(new Set(ordered).size).toBe(ordered.length)
+    expect(ordered).toContain('grass')
+  })
+
+  it('offers smoothness photos for a surface, or every level without photos', () => {
+    const sett = smoothnessChoices('sett')
+    expect(sett.map((c) => c.smoothness)).toEqual(['good', 'intermediate', 'bad', 'very_bad'])
+    expect(sett.every((c) => c.cell?.photo)).toBe(true)
+    const grass = smoothnessChoices('grass')
+    expect(grass).toHaveLength(8)
+    expect(grass.every((c) => !c.cell)).toBe(true)
+    expect(grass[0]?.level?.emoji).toBeTruthy()
+  })
+
+  it('credits a photo', () => {
+    expect(photoCredit('images/surface_acrylic.jpg')).toContain('CC-BY-SA')
+    expect(photoCredit(undefined)).toBeUndefined()
   })
 })
