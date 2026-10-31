@@ -1,11 +1,26 @@
 # @osm-editor-kit/surface-smoothness-id-field
 
+## 1.0.0
+
+### Major Changes
+
+- e9b6fce: - The stable API is `createSurfaceSmoothnessField` (the d3 field with its `tags`, `entityIDs`, `focus` and `on('change')` instance), the stylesheet `./surface-smoothness-field.css` with its `--ssf-*` custom properties, and the headless tag rules and picker choices (`resolveKeys`, `surfaceChangePatch`, `smoothnessChangePatch`, `isSmoothnessValidForSurface`, `smoothnessValuesForSurface`, `smoothnessChoices`, `orderedSurfaces`, `COMMON_SURFACES`, `photoCredit`) from the main entry and from `./logic`. From 1.0.0 these follow semver.
+  - Breaking: `SurfaceSmoothnessFieldDefinition.safeid` is removed. The field never used it. Remove `safeid` from the first argument of `createSurfaceSmoothnessField`.
+  - Breaking: `DEFAULT_KEYS` is no longer exported from `./logic`. Use `resolveKeys()`, which returns the keys with the defaults `surface` / `smoothness` filled in.
+  - `d3-dispatch` and `d3-selection` are no longer listed as dependencies. They are bundled into `dist/index.js`, so nothing for you to install. `@osm-editor-kit/surface-smoothness-data` stays a dependency (the `./logic` entry imports it).
+  - The main entry lists its exports by name (no `export *`). The names are the same as before, except those removed above.
+  - npm provenance is no longer set in `publishConfig`; releases are published from a terminal.
+
+### Patch Changes
+
+- Updated dependencies [e9b6fce]
+  - @osm-editor-kit/surface-smoothness-data@1.0.0
+
 ## 0.2.0
 
 ### Minor Changes
 
 - 8e2fb36: Easier to fit into a host, tested in our iD fork:
-
   - **Styling:** every rule is scoped to `.surface-smoothness-field`, so iD's `.ideditor button` and `span` rules no longer override it. New `--ssf-*` custom properties for colors, sizes, columns, label lines and the picker's height; the `ssf-*` class names are stable for overrides.
   - **Headless entry** `@osm-editor-kit/surface-smoothness-id-field/logic`: the tag rules and picker choices without DOM or d3, for hosts that draw their own UI.
   - **Tooltips:** they show the full label, so long translated labels that are cut off on the cards can be read. New adapters `optionDescription` and `tooltip` to translate or replace the tooltip text.

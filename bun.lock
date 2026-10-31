@@ -32,11 +32,11 @@
     },
     "packages/data": {
       "name": "@osm-editor-kit/surface-smoothness-data",
-      "version": "0.2.0",
+      "version": "1.0.0",
     },
     "packages/id-field": {
       "name": "@osm-editor-kit/surface-smoothness-id-field",
-      "version": "0.2.0",
+      "version": "1.0.0",
       "dependencies": {
         "@osm-editor-kit/surface-smoothness-data": "workspace:*",
       },
