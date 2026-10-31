@@ -32,8 +32,8 @@
     "@osm-editor-kit/surface-smoothness-data": "workspace:*",
     "@types/bun": "latest",
     "husky": "^9.1.7",
-    "oxfmt": "0.50.0",
-    "oxlint": "1.65.0",
+    "oxfmt": "0.74.0",
+    "oxlint": "1.89.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
   },
