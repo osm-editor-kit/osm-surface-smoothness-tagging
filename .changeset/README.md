@@ -1,14 +1,21 @@
 # Changesets
 
-This folder holds [changesets](https://github.com/changesets/changesets). Each changeset is a
-markdown file describing a version bump for the published packages:
+Agents write the changeset of a change. Do not use the interactive `bunx changeset`.
 
-- `@osm-editor-kit/surface-smoothness-data`
-- `@osm-editor-kit/surface-smoothness-id-field`
+Add `.changeset/<descriptive-name>.md` in the same commit as the code:
 
-(Those two are **fixed** together — same version on every release.)
+```md
+---
+"@osm-editor-kit/<package>": patch
+---
 
-For code/data changes, run `bunx changeset` and commit the result. When you are ready to
-publish, follow the **Release** section in the root README (same flow as
-[`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index),
-but run locally — this repo does not auto-publish from CI yet).
+- What people who use the package get, not which files changed.
+```
+
+- `patch` for fixes, `minor` for new features, `major` for breaking changes. A `major` names every removed export and its replacement.
+- List every changed package, one line each, with double quotes.
+- A change without anything to release, such as tests or docs, gets an empty changeset: only the two `---` lines.
+
+The pre-push hook runs `bunx changeset status --since=origin/main` and stops a push without a changeset.
+
+Changesets add up on `main` until the next release. See [Release](../README.md#release).

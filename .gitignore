@@ -14,3 +14,5 @@ mobile/
 
 # Local editor/preview config (machine-specific paths)
 .claude/
+
+**/.package.json.dev-backup

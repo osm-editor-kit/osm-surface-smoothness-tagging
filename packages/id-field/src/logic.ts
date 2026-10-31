@@ -13,7 +13,7 @@ export interface FieldKeys {
   smoothnessKey: string
 }
 
-export const DEFAULT_KEYS: FieldKeys = { surfaceKey: 'surface', smoothnessKey: 'smoothness' }
+const DEFAULT_KEYS: FieldKeys = { surfaceKey: 'surface', smoothnessKey: 'smoothness' }
 
 export function resolveKeys(field: SurfaceSmoothnessFieldDefinition = {}): FieldKeys {
   return {

@@ -1,24 +1,22 @@
 # [@osm-editor-kit/surface-smoothness-data](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-data)
 
-Standalone catalogue of OpenStreetMap `surface` / `smoothness` values, with
-lookup helpers and web-ready reference photos.
+The OpenStreetMap `surface` / `smoothness` values as typed data, with lookup helpers and web-ready reference photos. Extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete); usable from any editor, app or tool that needs the same matrix and photos.
 
-Originally extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete);
-usable from any editor, app, or tooling that needs the same matrix and assets.
-
-- **ESM-only** (`type: module`), zero runtime dependencies.
-- Typed `catalogue` object plus small helpers.
-- Subpath exports for raw JSON and static assets (`./catalogue.json`, `./images/*`).
-
-Consumed by
-[`@osm-editor-kit/surface-smoothness-id-field`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-id-field)
-and the [live demo](https://osm-editor-kit.github.io/osm-surface-smoothness-tagging/).
+> [!NOTE]
+> Claude Opus 5.5 wrote and reviewed the code of this package. [@tordans](https://github.com/tordans) specified what it should do and tested and verified its user-facing behavior.
 
 ## Install
 
 ```bash
 npm install @osm-editor-kit/surface-smoothness-data
 ```
+
+## What it does
+
+- ESM-only (`type: module`), no runtime dependencies.
+- A typed `catalogue` object and four small lookup helpers.
+- Subpath exports for the raw JSON and the photos: `./catalogue.json` and `./images/*`.
+- Used by [`@osm-editor-kit/surface-smoothness-id-field`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-id-field) and the [live demo](https://osm-editor-kit.github.io/osm-surface-smoothness-tagging/).
 
 ## Usage
 
@@ -46,12 +44,15 @@ for (const option of getSmoothnessOptionsForSurface('asphalt')) {
 }
 ```
 
+The types are exported as well: `Catalogue`, `CatalogueMeta`, `SmoothnessLevel`, `SurfaceInfo`, `MatrixCell`, `Attribution` and `SmoothnessOption`.
+
 ### Catalogue shape
 
 `catalogue` includes:
 
 | Field                        | Description                                                                   |
 | ---------------------------- | ----------------------------------------------------------------------------- |
+| `version`, `meta`            | Catalogue version, source and counts                                          |
 | `smoothnessLevels`           | OSM `smoothness` values → title, "usable by" emoji                            |
 | `surfaces`                   | OSM `surface` values → title, photo path, whether a smoothness quest applies  |
 | `surfaceAliases`             | Tag aliases → canonical surface (e.g. `concrete:plates` → `concrete`)         |

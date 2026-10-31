@@ -41,8 +41,7 @@
     "./package.json": "./package.json"
   },
   "publishConfig": {
-    "access": "public",
-    "provenance": true
+    "access": "public"
   },
   "scripts": {
     "bleach": "rm -rf node_modules dist dist-iife",
@@ -51,25 +50,28 @@
     "build:css": "cp src/surface-smoothness-field.css dist/surface-smoothness-field.css",
     "build:js": "vite build --config vite.esm.config.ts && vite build --config vite.logic.config.ts && vite build --config vite.iife.config.ts",
     "build:types": "tsc -p tsconfig.build.json",
-    "check": "bun run format:check && bun run lint && bun run type-check && bun run test",
+    "check": "bun run format-check && bun run lint-check && bun run type-check && bun run test-run",
     "check-exports": "attw --pack . --ignore-rules cjs-resolves-to-esm no-resolution --profile node16",
     "dev": "bun run scripts/dev.ts",
     "format": "oxfmt --config ../../oxfmt.config.mjs --write .",
-    "format:check": "oxfmt --config ../../oxfmt.config.mjs --check .",
-    "lint": "oxlint -c ../../oxlint.config.mjs .",
+    "format-check": "oxfmt --config ../../oxfmt.config.mjs --check .",
+    "lint": "oxlint --fix -c ../../oxlint.config.mjs .",
+    "lint-check": "oxlint -c ../../oxlint.config.mjs .",
+    "postpack": "bun ../../scripts/package-exports-restore.ts",
+    "prepack": "bun ../../scripts/package-exports-for-publish.ts",
     "prepublishOnly": "bun run build",
     "sync:id-worktree": "bun run scripts/sync-to-id-worktree.ts",
-    "test": "vitest run",
+    "test-run": "vitest run",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@osm-editor-kit/surface-smoothness-data": "workspace:*",
-    "d3-dispatch": "~3.0.1",
-    "d3-selection": "~3.0.0"
+    "@osm-editor-kit/surface-smoothness-data": "workspace:*"
   },
   "devDependencies": {
     "@types/d3-dispatch": "^3.0.7",
     "@types/d3-selection": "^3.0.11",
+    "d3-dispatch": "~3.0.1",
+    "d3-selection": "~3.0.0",
     "typescript": "^5.9.3",
     "vite": "^8.0.13"
   },

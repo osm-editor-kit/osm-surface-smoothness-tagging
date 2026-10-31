@@ -1,4 +1,4 @@
-name: Deploy preview (GitHub Pages)
+name: Pages
 
 # Pages source must be set to "GitHub Actions" in repo Settings → Pages.
 on:
@@ -23,7 +23,7 @@ jobs:
 
       - uses: oven-sh/setup-bun@v2
         with:
-          bun-version: 1.3.14
+          bun-version-file: package.json
 
       - name: Install
         run: bun install --frozen-lockfile

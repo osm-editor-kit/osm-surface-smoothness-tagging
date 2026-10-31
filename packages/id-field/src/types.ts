@@ -6,7 +6,6 @@ export interface SurfaceSmoothnessFieldDefinition {
   surfaceKey?: string
   /** OSM tag key for the smoothness value (default "smoothness"). */
   smoothnessKey?: string
-  safeid?: string
 }
 
 export interface SurfaceSmoothnessContext {

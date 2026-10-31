@@ -11,7 +11,7 @@ export default defineConfig({
     sourcemap: false,
     target: 'es2022',
     lib: {
-      entry: resolve(import.meta.dirname, 'src/fieldEntry.ts'),
+      entry: resolve(import.meta.dirname, 'src/index.ts'),
       formats: ['es'],
       fileName: () => 'index.js',
     },

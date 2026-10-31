@@ -1,24 +1,9 @@
 # [@osm-editor-kit/surface-smoothness-id-field](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-id-field)
 
-D3 inspector field for the [iD editor](https://github.com/openstreetmap/iD): pick
-`surface` and a matching `smoothness` with StreetComplete-style reference photos.
+D3 inspector field for the [iD editor](https://github.com/openstreetmap/iD): pick `surface` and a matching `smoothness` with StreetComplete-style reference photos. It does not depend on iD, so any host can mount it.
 
-**Made for road-like ways:** roads, cycleways, footways and paths, and road-like areas such as
-pedestrian squares (`highway=pedestrian` areas). The photos show road surfaces and the
-smoothness levels describe how well wheels roll on them. Sport pitches, parking areas or
-playgrounds are not what the photos show, and conveyors like `highway=footway` +
-`conveying=*` are road-like but not something this field handles; keep the plain `surface` /
-`smoothness` fields there. In iD, use the field on presets that also offer `smoothness`.
-
-- Two tiles side by side: the surface and its smoothness, each with its photo and label (an empty frame while not set). The tags are in the tooltip.
-- Clicking a tile opens its picker below: all surface photos first; choosing a surface opens the smoothness photos for that surface (or every level with its "usable by" emoji where StreetComplete has no photos).
-- Below the photos, a label | input row takes any value, also one without a photo. A host can render its own input there (`adapters.renderInput`, e.g. iD's combo field with its translated dropdown); otherwise the field draws a simple dropdown.
-- Emits tag patches for `surface` / `smoothness`. Changing the surface clears a smoothness the new surface cannot have (e.g. `excellent` on `sett`); it keeps the smoothness when the surface is removed, when the new surface has no reference photos (every level is offered there), and when the value is not one the catalogue knows. Choosing the current value again removes it.
-- Keyboard: each photo grid is one tab stop; arrow keys, Home and End move inside it, Enter or Space chooses, Escape closes the picker. After a surface, focus moves to the smoothness photos; after a smoothness, back to its tile.
-- Tooltips on tiles and cards show the full label (the visible one may be cut off), the tag, the description and the photo credit.
-- **ESM-only** (`type: module`). Import the CSS side effect separately.
-
-Live demo: [osm-editor-kit.github.io/osm-surface-smoothness-tagging](https://osm-editor-kit.github.io/osm-surface-smoothness-tagging/)
+> [!NOTE]
+> Claude Opus 5.5 wrote and reviewed the code of this package. [@tordans](https://github.com/tordans) specified what it should do and tested and verified its user-facing behavior.
 
 ## Install
 
@@ -26,9 +11,21 @@ Live demo: [osm-editor-kit.github.io/osm-surface-smoothness-tagging](https://osm
 npm install @osm-editor-kit/surface-smoothness-id-field
 ```
 
-Peer data and photos come from
-[`@osm-editor-kit/surface-smoothness-data`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-data)
-(declared as a dependency).
+The package depends on [`@osm-editor-kit/surface-smoothness-data`](https://www.npmjs.com/package/@osm-editor-kit/surface-smoothness-data), which npm installs with it. The main entry has the catalogue and d3 bundled in. Only the headless `./logic` entry imports the data package. The photos are not bundled; serve them from the data package (see `assetUrl`).
+
+## What it does
+
+**Made for road-like ways:** roads, cycleways, footways and paths, and road-like areas such as pedestrian squares (`highway=pedestrian` areas). The photos show road surfaces and the smoothness levels describe how well wheels roll on them. Sport pitches, parking areas or playgrounds are not what the photos show, and conveyors like `highway=footway` + `conveying=*` are road-like but not something this field handles; keep the plain `surface` / `smoothness` fields there. In iD, use the field on presets that also offer `smoothness`.
+
+- Two tiles side by side: the surface and its smoothness, each with its photo and label (an empty frame while not set). The tags are in the tooltip.
+- Clicking a tile opens its picker below: all surface photos first; choosing a surface opens the smoothness photos for that surface (or every level with its "usable by" emoji where StreetComplete has no photos).
+- Below the photos, a label | input row takes any value, also one without a photo. A host can render its own input there (`adapters.renderInput`, e.g. iD's combo field with its translated dropdown); otherwise the field draws a simple dropdown.
+- Emits tag patches for `surface` / `smoothness`. Changing the surface clears a smoothness the new surface cannot have (e.g. `excellent` on `sett`); it keeps the smoothness when the surface is removed, when the new surface has no reference photos (every level is offered there), and when the value is not one the catalogue knows. Choosing the current value again removes it.
+- Keyboard: each photo grid is one tab stop; arrow keys, Home and End move inside it, Enter or Space chooses, Escape closes the picker. After a surface, focus moves to the smoothness photos; after a smoothness, back to its tile.
+- Tooltips on tiles and cards show the full label (the visible one may be cut off), the tag, the description and the photo credit.
+- ESM-only (`type: module`). Import the CSS side effect separately.
+
+Live demo: [osm-editor-kit.github.io/osm-surface-smoothness-tagging](https://osm-editor-kit.github.io/osm-surface-smoothness-tagging/)
 
 ## Usage
 
@@ -51,8 +48,8 @@ const field = createSurfaceSmoothnessField(
 )
 
 field.on('change', (patch) => {
-  // patch is { surface?: string, smoothness?: string | undefined }
-  // undefined values mean “clear this key”.
+  // patch is a TagPatch: the keys to set, e.g. { surface: 'sett', smoothness: undefined }.
+  // An undefined value means “clear this key”.
 })
 
 select('#field').call(field)
@@ -65,7 +62,7 @@ field.tags({ surface: 'asphalt' })
 | ------------------------------ | --------------------------------------------------------------------- |
 | `field(selection)`             | Mount / update into a d3 selection (call as `selection.call(field)`). |
 | `field.tags(tags)`             | Push current OSM tags into the widget.                                |
-| `field.entityIDs(ids)`         | Optional entity ids (iD multi-edit context).                          |
+| `field.entityIDs(ids)`         | Call when the field shows another feature: closes an open picker.     |
 | `field.focus()`                | Focus the first tile.                                                 |
 | `field.on('change', listener)` | Subscribe to tag patches (`TagPatch`).                                |
 
@@ -75,8 +72,8 @@ field.tags({ surface: 'asphalt' })
 createSurfaceSmoothnessField(field?, context?, adapters?)
 ```
 
-- **`field`** — `surfaceKey` / `smoothnessKey` (defaults `"surface"` / `"smoothness"`), optional `safeid`.
-- **`context.assetUrl(path)`** — resolve catalogue asset paths to browser URLs. Required for photos to show.
+- **`field`** — `surfaceKey` / `smoothnessKey` (defaults `"surface"` / `"smoothness"`).
+- **`context.assetUrl(path)`** — resolve catalogue asset paths to browser URLs. Without it, the paths (`images/…`) are used as they are, relative to the page.
 - **`adapters.t(key, fallback)`** — translate UI labels (`surface`, `smoothness`, `surface_placeholder`, `smoothness_placeholder`, `photo`, `multiple_values`).
 - **`adapters.optionLabel(key, value)`** — label of a tag value, e.g. from the host's translated tagging schema; `undefined` falls back to the catalogue's English title.
 - **`adapters.optionDescription(key, value, surface?)`** — description of a tag value for its tooltip; `undefined` falls back to the catalogue's English description of the photo.
@@ -149,9 +146,9 @@ surfaceChangePatch('excellent', 'sett') // { surface: 'sett', smoothness: undefi
 
 ### Helpers
 
-Exported from `./logic` and from the main entry:
+Exported from `./logic` and from the main entry, with the types `FieldKeys` and `SmoothnessChoice`:
 
-- `resolveKeys(field)`
+- `resolveKeys(field)` — the surface and smoothness keys, with the defaults filled in
 - `smoothnessValuesForSurface(surface)` — the values with a reference photo for this surface (`[]` if none)
 - `isSmoothnessValidForSurface(surface, smoothness)` — whether a smoothness may stay when the surface changes (see the rule above)
 - `surfaceChangePatch(currentSmoothness, nextSurface, keys?)`

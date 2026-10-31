@@ -7,7 +7,14 @@ import { catalogue } from './generated/catalogue.js'
 import type { MatrixCell, SmoothnessLevel, SurfaceInfo } from './types.js'
 
 export { catalogue }
-export type * from './types.js'
+export type {
+  Attribution,
+  Catalogue,
+  CatalogueMeta,
+  MatrixCell,
+  SmoothnessLevel,
+  SurfaceInfo,
+} from './types.js'
 
 /** Resolve a tag value through the alias map (e.g. "concrete:plates" → "concrete"). */
 export function normalizeSurface(value: string): string {

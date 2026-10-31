@@ -1,13 +1,12 @@
 # Surface & Smoothness Tagging
 
-Shared `surface` + `smoothness` tagging data and UI for OpenStreetMap editors,
-initially extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete).
+Shared `surface` + `smoothness` tagging data and UI for OpenStreetMap editors, extracted from [StreetComplete](https://github.com/streetcomplete/StreetComplete). Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org.
+
+> [!NOTE]
+> Claude Opus 5.5 wrote and reviewed the code of these packages. [@tordans](https://github.com/tordans) specified what it should do and tested and verified its user-facing behavior.
 
 Made for road-like ways: roads, cycleways, footways, paths and road-like areas such as pedestrian squares.
 The photos show road surfaces, so the picker does not fit sport pitches, parking areas or playgrounds.
-
-Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org (same family as
-[`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index)).
 
 | Path | Package | Role |
 |------|---------|------|
@@ -24,8 +23,7 @@ Part of the [`osm-editor-kit`](https://github.com/osm-editor-kit) GitHub org (sa
 
 ```bash
 bun install
-bun run lint && bun run type-check
-bun run build:packages && bun run check-exports
+bun run check        # builds the packages, then format, lint, types, tests and attw
 bun run dev:demo
 ```
 
@@ -41,25 +39,11 @@ bun run dev:demo
 
 ## Release
 
-Same [changesets](https://github.com/changesets/changesets) flow as
-[`maplibre-editor-layer-index`](https://github.com/osm-editor-kit/maplibre-editor-layer-index),
-run **manually** (no auto-publish CI yet):
+Versions and changelogs use [changesets](https://github.com/changesets/changesets), see [`.changeset/README.md`](.changeset/README.md). Releases run from a terminal with npm 2FA:
 
-1. After meaningful changes, create a changeset and commit it with your PR:
-   ```bash
-   bunx changeset
-   ```
-2. On `main`, when you want to publish:
-   ```bash
-   bun run version-packages   # consumes .changeset/*.md, bumps versions + CHANGELOGs
-   git add -A && git commit -m "chore: release"
-   bun run release            # build:packages + changeset publish
-   git push && git push --tags
-   ```
-
-Both npm packages stay on the **same version** (`fixed` in `.changeset/config.json`).
-Publishing is ESM-only; set `publishConfig.provenance` like the maplibre sibling (OIDC/trusted
-publishing when you add a release workflow later).
+```bash
+bun run release
+```
 
 ## License
 
